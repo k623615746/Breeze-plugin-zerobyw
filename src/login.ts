@@ -112,7 +112,8 @@ export async function loginWithAccount(input: {
     `/member.php?mod=logging&action=login&loginsubmit=yes` +
     `&formhash=${encodeURIComponent(formhash)}&loginhash=${encodeURIComponent(loginhash)}`;
 
-  const res = await postSiteForm(action, {
+  // 503 通常是站点 WAF 对「自动化登录请求」的临时拦截，等待后重试一次
+  let res = await postSiteForm(action, {
     referer: "/",
     loginfield: "username",
     username,
@@ -123,7 +124,28 @@ export async function loginWithAccount(input: {
     formhash,
   });
 
+  if (res.status === 503) {
+    console.log("[zerobyw] 登录收到 503，1.5 秒后重试一次");
+    await sleep(1500);
+    res = await postSiteForm(action, {
+      referer: "/",
+      loginfield: "username",
+      username,
+      password,
+      questionid,
+      answer,
+      cookietime: "2592000",
+      formhash,
+    });
+  }
+
   if (res.status >= 400) {
+    if (res.status === 503) {
+      throw new Error(
+        "登录请求被站点拦截（HTTP 503）。多为站点对自动化登录的临时风控，可稍等几分钟再试；" +
+          "若持续失败，请改用「Cookie 登录」：在浏览器登录一次后粘贴 Cookie 导入。",
+      );
+    }
     throw new Error(`登录请求失败（HTTP ${res.status}）`);
   }
 
@@ -156,4 +178,10 @@ async function saveCookieFromSession(): Promise<number> {
     return 0;
   }
   return cookie.split(";").filter((part) => part.includes("=")).length;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

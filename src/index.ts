@@ -515,7 +515,7 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
         },
         {
           id: "about",
-          title: loggedIn ? "登录状态：已配置 Cookie" : "登录状态：未登录（仅可阅读免费章节）",
+          title: loggedIn ? "登录状态：已登录" : "登录状态：未登录（仅可阅读免费章节）",
           fields: [],
         },
       ],
@@ -523,8 +523,8 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
     data: {
       canShowUserInfo: false,
       canLogin: true,
-      loginTitle: "Cookie 登录",
-      loginSubtitle: "粘贴浏览器 Cookie 以解锁全部章节",
+      loginTitle: "账号登录",
+      loginSubtitle: "用账号密码登录，解锁全部章节",
       values: {},
     },
   };

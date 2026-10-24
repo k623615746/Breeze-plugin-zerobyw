@@ -201,11 +201,10 @@ export async function postSiteForm(
     method: "POST",
     headers: buildHeaders(url, {
       "Content-Type": "application/x-www-form-urlencoded",
-      "X-Requested-With": "XMLHttpRequest",
       Referer: `${getOrigin()}/member.php?mod=logging&action=login`,
     }),
     body,
-    redirect: "follow",
+    redirect: "manual",
     signal: AbortSignal.timeout(options.timeoutMs ?? 25000),
   });
   absorbCookies(res);
