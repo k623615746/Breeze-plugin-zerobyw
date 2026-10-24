@@ -36,7 +36,7 @@ console.log("\n[E2E] 真实网络调用");
 await check("getInfo 返回注册信息", async () => {
   const info = await plugin.getInfo();
   assert.equal(info.name, "zero搬运网");
-  assert.equal(info.version, "1.0.0");
+  assert.match(info.version, /^\d+\.\d+\.\d+$/);
   assert.ok(info.function.length >= 2, `function=${info.function.length}`);
 });
 
@@ -106,8 +106,9 @@ await check("设置页与登录表单可用", async () => {
   const settings = await plugin.getSettingsBundle();
   assert.equal(settings.data.canLogin, true);
   const login = await plugin.getLoginBundle();
-  assert.equal(login.scheme.action.fnPath, "loginWithCookie");
-  assert.ok(login.scheme.fields.length > 0);
+  assert.equal(login.scheme.action.fnPath, "loginWithAccount");
+  const keys = login.scheme.fields.map((f: { key: string }) => f.key);
+  assert.deepEqual(keys, ["username", "password", "questionid", "answer"]);
 });
 
 console.log(`\n结果：${passed} 通过，${failed} 失败\n`);

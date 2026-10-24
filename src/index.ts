@@ -21,6 +21,7 @@ import { CATEGORIES, LANGS, PAGE_SIZE, PLACEHOLDER_IMAGE_URL, PLUGIN_ID, cleanTe
 import { clearCookie, ensureCookie, fetchImage, fetchSitePath, hasLoginSession, saveCookie } from "./http";
 import { getOrigin } from "./origin";
 import { refreshOrigin, resetOriginToDefault } from "./site";
+import { loginWithAccount as performAccountLogin } from "./login";
 import { buildPluginInfo } from "./get-info";
 import {
   parseComicDetail,
@@ -531,7 +532,46 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
 
 async function getLoginBundle(): Promise<LoginBundleContract> {
   return buildLoginBundle(PLUGIN_ID, {
-    title: "zero搬运网 Cookie 登录",
+    title: "zero搬运网 账号登录",
+    fields: [
+      {
+        key: "username",
+        kind: "text",
+        label: "账号",
+        required: true,
+        placeholder: "用户名 / UID / 邮箱",
+        help: "支持 Discuz 的用户名、UID、邮箱三种登录方式，默认按用户名。",
+      },
+      {
+        key: "password",
+        kind: "password",
+        label: "密码",
+        required: true,
+        placeholder: "登录密码",
+      },
+      {
+        key: "questionid",
+        kind: "text",
+        label: "安全提问编号（可选）",
+        placeholder: "没有设置安全提问请留空",
+        help: "若账号设置了安全提问，填对应编号：1 母亲的名字 / 2 爷爷的名字 / 3 父亲出生的城市 / 4 老师的名字 / 5 计算机型号 / 6 喜欢的餐馆 / 7 驾照后四位。",
+      },
+      {
+        key: "answer",
+        kind: "text",
+        label: "安全提问答案（可选）",
+        placeholder: "与上面编号对应的答案",
+      },
+    ],
+    submitFnPath: "loginWithAccount",
+    submitText: "登录",
+  });
+}
+
+/** 备用：直接用 Cookie 登录（站点弹出验证码时走这条路） */
+async function getCookieLoginBundle(): Promise<LoginBundleContract> {
+  return buildLoginBundle(PLUGIN_ID, {
+    title: "zero搬运网 Cookie 登录（备用）",
     fields: [
       {
         key: "cookie",
@@ -539,12 +579,33 @@ async function getLoginBundle(): Promise<LoginBundleContract> {
         label: "Cookie",
         required: true,
         placeholder: "从浏览器开发者工具复制完整 Cookie",
-        help: "登录站点后按 F12 → 网络 → 任选请求 → 复制请求头里的 Cookie。仅保存在本机插件配置中。",
+        help: "若账号登录提示需要验证码，可先在浏览器登录，再按 F12 → 网络 → 任选请求 → 复制请求头里的 Cookie 粘贴到这里。",
       },
     ],
     submitFnPath: "loginWithCookie",
     submitText: "保存并验证",
   });
+}
+
+/** 账号密码登录入口 */
+async function loginWithAccount(payload?: Record<string, unknown>) {
+  const values = readLoginValues(payload as never);
+  const result = await performAccountLogin({
+    username: values.username ?? "",
+    password: values.password ?? "",
+    questionid: values.questionid ?? "",
+    answer: values.answer ?? "",
+  });
+
+  // 登录成功后顺带确认一次站点登录态
+  const state = await detectLoginState();
+  const message = state.loggedIn ? result.message : `${result.message}（但站点未确认登录态：${state.hint}）`;
+
+  return {
+    source: PLUGIN_ID,
+    message,
+    data: { message, cookieCount: result.cookieCount },
+  };
 }
 
 /** 用 /pc/pcmy/ 页面判断登录态 */
@@ -620,6 +681,7 @@ async function getCapabilitiesBundle(): Promise<CapabilitiesBundleContract> {
       actions: [
         { key: "domain-refresh", title: "刷新域名（从发布页获取最新）", fnPath: "refreshDomain" },
         { key: "domain-reset", title: "重置为内置默认域名", fnPath: "resetDomain" },
+        { key: "cookie-login", title: "用 Cookie 登录（账号登录失败时的备用方式）", fnPath: "getCookieLoginBundle" },
         { key: "check", title: "检查登录状态", fnPath: "checkLoginState" },
         { key: "clear", title: "清除登录 Cookie", fnPath: "clearCookieAction" },
       ],
@@ -641,6 +703,8 @@ export default {
   getDownloadConcurrency,
   getSettingsBundle,
   getLoginBundle,
+  getCookieLoginBundle,
+  loginWithAccount,
   loginWithCookie,
   clearCookieAction,
   checkLoginState,

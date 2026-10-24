@@ -15,7 +15,7 @@ export const PLUGIN_ID = "b7d1e0c4-3a52-4f8b-9c61-0e2a5f7d8b90";
  * 宿主不会用它下载图片，只会校验格式，因此这里指向站点自有 logo。
  * 注意：用内置默认域名而非当前域名——图片地址可能已失效，占位图不该跟着失效。
  */
-export const PLACEHOLDER_IMAGE_URL = `${DEFAULT_ORIGIN}/template/discuzx5/static/logo-zero-x5-home.svg`;
+export const PLACEHOLDER_IMAGE_URL = "https://cdn.jsdelivr.net/gh/k623615746/Breeze-plugin-zerobyw@main/assets/icon.png";
 
 export const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";

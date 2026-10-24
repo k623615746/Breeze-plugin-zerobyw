@@ -9,7 +9,7 @@ const GITHUB_REPO = "Breeze-plugin-zerobyw";
 /** 自动更新通道：GitHub Release API（客户端仅对此域名套用镜像加速） */
 const UPDATE_URL = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`;
 
-const ICON_URL = `${DEFAULT_ORIGIN}/template/discuzx5/static/logo-zero-x5-home.svg`;
+const ICON_URL = "https://cdn.jsdelivr.net/gh/k623615746/Breeze-plugin-zerobyw@main/assets/icon.png";
 
 function buildScene(title: string, core: Record<string, unknown> = {}): ComicListScene {
   return {
@@ -76,11 +76,11 @@ export function buildPluginInfo(): InfoContract {
       "- 支持关键词搜索、分类筛选、人气/最新排行",
       "- 章节列表取自阅读页目录，完整话数可见",
       "- 域名失效时自动从官方发布页获取最新域名",
-      "- 部分章节需要站点账号登录；在插件设置中填入 Cookie 即可",
+      "- 部分章节需要站点账号登录；在插件设置里用账号密码直接登录",
       "",
       "> 内容版权归原作者及出版方所有，本插件仅做页面解析，不存储、不分发任何漫画内容。",
     ].join("\n"),
-    version: "1.1.0",
+    version: "1.2.0",
     home: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`,
     updateUrl: UPDATE_URL,
     function: buildFunctions(),

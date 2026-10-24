@@ -5,7 +5,7 @@
 按 Breeze 官方插件规范实现（`breeze-plugin-kit` + QuickJS 运行时 + `BreezeHtml` 原生解析），不依赖任何第三方解析库。
 
 - 仓库：<https://github.com/k623615746/Breeze-plugin-zerobyw>
-- 版本：1.1.0
+- 版本：1.2.0
 
 ---
 
@@ -119,15 +119,39 @@ https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.0.0/bree
 
 ## 登录（可选）
 
-站点大部分章节需要登录账号。插件支持 Cookie 登录，**不需要账号密码**：
+站点大部分章节需要登录账号。插件支持**账号密码直接登录**，不需要抓 Cookie：
 
-1. 浏览器登录 `zerobyw33.com`
-2. F12 → 网络 → 任选一个请求 → 复制请求头里的 `Cookie`
-3. Breeze → 该插件 → 设置 → 账号登录 → 粘贴 → 保存并验证
+**发现页 → 插件 → 该插件 → 设置 → 账号登录**，填账号和密码即可。
 
-Cookie 只保存在本机插件配置（`authConfig`，Key 为 `auth.cookie`），不上传任何服务器。设置页底部提供「检查登录状态」和「清除登录 Cookie」两个操作。
+| 字段 | 说明 |
+| --- | --- |
+| 账号 | 用户名 / UID / 邮箱均可 |
+| 密码 | 登录密码 |
+| 安全提问编号 | 可选。账号设了安全提问才需要填 |
+| 安全提问答案 | 可选。与上面编号对应 |
 
-未登录时：免费章节正常阅读，受限章节会抛标准 `unauthorized` 错误，宿主会弹出登录引导。
+登录成功后，认证 Cookie 由插件自动捕获并保存到本机（`authConfig`，Key 为 `auth.cookie`），不上传任何服务器。
+
+### 实现方式
+
+站点是 Discuz! 架构，登录不是简单的 POST：
+
+1. GET `member.php?mod=logging&action=login`，从页面里取一次性的 `formhash` 与 `loginhash`
+2. POST 到 `member.php?mod=logging&action=login&loginsubmit=yes&formhash=...&loginhash=...`
+3. 从响应的 `Set-Cookie` 里捕获认证项（`<随机前缀>_auth`），合并进会话
+4. 再用 `/pc/pcmy/` 确认登录态
+
+Cookie 前缀（如 `W6vj_2132_`）每个站点实例随机生成，所以插件按 cookie 名整包存取，不假设固定前缀。
+
+### 备用方式：Cookie 登录
+
+如果站点在登录时要求输入验证码，账号密码方式会被拦住。这时可以走备用路径：
+
+设置页底部 →「用 Cookie 登录（账号登录失败时的备用方式）」→ 粘贴浏览器里的 Cookie。
+
+### 状态管理
+
+设置页底部提供「检查登录状态」和「清除登录 Cookie」。未登录时免费章节正常阅读，受限章节会抛标准 `unauthorized` 错误，宿主会弹出登录引导。
 
 ---
 

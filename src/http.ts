@@ -118,6 +118,101 @@ export type FetchTextResult = {
   text: string;
 };
 
+/** 兼容读取 Set-Cookie：优先 getSetCookie()，回退到合并字符串 */
+function readSetCookie(res: Response): string[] {
+  const headers = res.headers as unknown as { getSetCookie?: () => string[] };
+  if (typeof headers.getSetCookie === "function") {
+    try {
+      const list = headers.getSetCookie();
+      if (Array.isArray(list) && list.length > 0) {
+        return list;
+      }
+    } catch {
+      // 回退到字符串解析
+    }
+  }
+  const raw = res.headers.get("set-cookie");
+  if (!raw) {
+    return [];
+  }
+  // 按 ", name=" 切分，避免 Expires=Wed, 21 Oct ... 里的逗号被误切
+  return raw
+    .split(/,(?=\s*[A-Za-z0-9_\-]+=)/)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+/**
+ * 把响应里的 Set-Cookie 合并进当前会话。
+ * Discuz 的 cookie 前缀（如 W6vj_2132_）随站点随机生成，所以整包按 name 存取，
+ * 不假设任何固定前缀。
+ */
+function absorbCookies(res: Response): void {
+  const list = readSetCookie(res);
+  if (list.length === 0) {
+    return;
+  }
+  const jar = new Map<string, string>();
+  for (const part of cookieCache.split(";")) {
+    const idx = part.indexOf("=");
+    if (idx > 0) {
+      jar.set(part.slice(0, idx).trim(), part.slice(idx + 1).trim());
+    }
+  }
+  for (const line of list) {
+    const pair = line.split(";")[0] ?? "";
+    const idx = pair.indexOf("=");
+    if (idx <= 0) {
+      continue;
+    }
+    const key = pair.slice(0, idx).trim();
+    const value = pair.slice(idx + 1).trim();
+    if (!value || value.toLowerCase() === "deleted") {
+      jar.delete(key);
+    } else {
+      jar.set(key, value);
+    }
+  }
+  cookieCache = Array.from(jar.entries())
+    .map(([key, value]) => `${key}=${value}`)
+    .join("; ");
+  cookieLoaded = true;
+}
+
+/** 当前内存里的会话 cookie（登录过程中已由 absorbCookies 更新） */
+export function getSessionCookie(): string {
+  return cookieCache;
+}
+
+/** 站内表单 POST（登录用），会吸收响应里的 Set-Cookie */
+export async function postSiteForm(
+  path: string,
+  data: Record<string, string>,
+  options: { timeoutMs?: number } = {},
+): Promise<{ status: number; url: string; text: string }> {
+  await ensureCookie();
+  await ensureOriginLoaded();
+  const url = `${getOrigin()}${path.startsWith("/") ? path : `/${path}`}`;
+  const body = Object.entries(data)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join("&");
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: buildHeaders(url, {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Requested-With": "XMLHttpRequest",
+      Referer: `${getOrigin()}/member.php?mod=logging&action=login`,
+    }),
+    body,
+    redirect: "follow",
+    signal: AbortSignal.timeout(options.timeoutMs ?? 25000),
+  });
+  absorbCookies(res);
+  const text = await res.text();
+  return { status: res.status, url: res.url || url, text };
+}
+
 /** 通用文本请求（用于外部站点，不参与域名自动切换） */
 export async function fetchText(
   url: string,
@@ -142,6 +237,8 @@ async function trySiteFetch(url: string, timeoutMs: number): Promise<string | nu
       redirect: "follow",
       signal: AbortSignal.timeout(timeoutMs),
     });
+    // 站点会在每次响应里刷新 sid，保持会话连续
+    absorbCookies(res);
     if (!res.ok) {
       console.log("[zerobyw] 请求失败:", res.status, url);
       return null;
