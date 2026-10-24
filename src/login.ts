@@ -44,10 +44,18 @@ export async function fetchLoginForm(): Promise<LoginForm> {
 
 /** 从响应 HTML 里抽取错误提示 */
 function extractErrorMessage(html: string): string {
+  // Discuz 登录失败页的真实结构是
+  // <div id="messagetext" class="alert_error"><p>登录失败，您还可以尝试 4 次</p>
+  // 以及 returnmessage 弹层。按覆盖面从精确到宽松依次匹配。
   const candidates = [
+    // <p> 直接包错误文案（alert_error / alert_info 均可，class 可能在 id 之后）
+    /<(?:div|p)[^>]*class="alert_(?:error|info)"[^>]*>\s*<p[^>]*>\s*([^<]{1,120})<\/p>/,
+    /<div[^>]*class="alert_error"[^>]*>[\s\S]{0,300}?<p[^>]*>([^<]{1,120})<\/p>/,
+    /<div[^>]*class="alert_info"[^>]*>[\s\S]{0,300}?<p[^>]*>([^<]{1,120})<\/p>/,
+    // returnmessage 弹层
     /id="returnmessage_[^"]*"[^>]*>\s*([^<]{1,120})</,
-    /<div class="alert_error">[\s\S]{0,300}?<p[^>]*>([^<]{1,120})<\/p>/,
-    /<div class="alert_info">[\s\S]{0,300}?<p[^>]*>([^<]{1,120})<\/p>/,
+    // 兜底：任何 alert_* 容器里的 <p>
+    /class="alert_(?:error|info)"[^>]*>[\s\S]{0,400}?<p[^>]*>\s*([^<]{1,120})<\/p>/,
   ];
   for (const pattern of candidates) {
     const matched = html.match(pattern);
@@ -121,9 +129,13 @@ export async function loginWithAccount(input: {
 
   if (!looksLoggedIn(res.text, getSessionCookie())) {
     const detail = extractErrorMessage(res.text);
+    // 提取「还可以尝试 N 次」这类限流提示，帮助判断是账号问题还是被风控
+    const retry = res.text.match(/还可以尝试\s*(\d+)\s*次/)?.[1];
     const hint = /验证码|seccode/i.test(res.text)
       ? "站点要求输入验证码，请先在浏览器登录一次，再用「粘贴 Cookie」方式导入"
-      : "";
+      : retry
+        ? `登录失败（${detail || "账号或密码不正确"}）；该账号/IP 已被限流，剩余尝试 ${retry} 次，请稍后再试或改用 Cookie 登录`
+        : "";
     throw new Error(detail || hint || "登录失败，请检查账号密码是否正确");
   }
 

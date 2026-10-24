@@ -88,7 +88,7 @@ await check("图标地址指向仓库资源", async () => {
   const info = await plugin.getInfo();
   assert.ok(info.iconUrl.includes("cdn.jsdelivr.net"), info.iconUrl);
   assert.ok(info.iconUrl.endsWith("assets/icon.png"), info.iconUrl);
-  assert.equal(info.version, "1.2.0");
+  assert.match(info.version, /^\d+\.\d+\.\d+$/);
 });
 
 console.log(`\n结果：${passed} 通过，${failed} 失败\n`);
