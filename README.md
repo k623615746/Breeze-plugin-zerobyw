@@ -28,7 +28,7 @@
 在同一个「更新」对话框选「从网络安装」，填入 Release 资产直链：
 
 ```
-https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.0.0/breeze-plugin-zerobyw.bundle.cjs
+https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.2.0/breeze-plugin-zerobyw.bundle.cjs
 ```
 
 ### 产物说明
@@ -63,7 +63,7 @@ https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.0.0/bree
 | 详情页 | 标题、作者、分类、语言、状态、收藏数、人气数、简介、封面 |
 | 章节列表 | **完整目录**（见下方说明） |
 | 阅读 | 全部内页图片，支持下载 |
-| 登录 | Cookie 登录，解锁受限章节 |
+| 登录 | **账号密码登录**（Discuz formhash 流程），另备 Cookie 登录 |
 | 域名自愈 | 域名失效时自动从官方发布页获取最新域名并切换 |
 
 ### 章节列表为什么单独处理
@@ -170,7 +170,7 @@ src/
 
 实现的 fnPath：
 
-`init` `getInfo` `searchComic` `getRankingData` `getRankingFilterBundle` `getComicDetail` `getReadSnapshot` `getChapter` `fetchImageBytes` `getDownloadConcurrency` `getSettingsBundle` `getLoginBundle` `loginWithCookie` `clearCookieAction` `checkLoginState` `refreshDomain` `resetDomain` `getCapabilitiesBundle`
+`init` `getInfo` `searchComic` `getRankingData` `getRankingFilterBundle` `getComicDetail` `getReadSnapshot` `getChapter` `fetchImageBytes` `getDownloadConcurrency` `getSettingsBundle` `getLoginBundle` `loginWithAccount` `getCookieLoginBundle` `loginWithCookie` `clearCookieAction` `checkLoginState` `refreshDomain` `resetDomain` `getCapabilitiesBundle`
 
 几个关键点：
 
