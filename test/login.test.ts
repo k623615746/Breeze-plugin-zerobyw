@@ -84,6 +84,23 @@ await check("假账号登录：协议走通，返回明确失败", async () => {
   console.log(`    服务端返回：${message}`);
 });
 
+await check("网页登录：startWebLogin 返回宿主 Web 登录流配置", async () => {
+  const res = await plugin.startWebLogin();
+  const data = res.data as Record<string, string>;
+  assert.ok(data.openUrl.includes("/member.php?mod=logging&action=login"), `openUrl=${data.openUrl}`);
+  assert.ok(data.openUrl.startsWith("http"), data.openUrl);
+  assert.equal(data.setCookieFnPath, "saveWebLoginCookie");
+  assert.ok(data.redirectWatchUrl.startsWith("http"), data.redirectWatchUrl);
+  assert.ok(data.openTitle.length > 0, "缺少 openTitle");
+});
+
+await check("网页登录：capabilities 注册了网页登录入口", async () => {
+  const caps = await plugin.getCapabilitiesBundle();
+  const keys = caps.scheme.actions.map((a: { key: string }) => a.key);
+  assert.ok(keys.includes("web-login"), keys.join(","));
+  assert.ok(keys.includes("logout"), keys.join(","));
+});
+
 await check("未登录时「检查登录状态」抛 unauthorized（宿主据此拉起登录表单）", async () => {
   let message = "";
   try {

@@ -179,12 +179,13 @@ export async function loginWithAccount(input: {
     const detail = extractErrorMessage(res.text);
     // 提取「还可以尝试 N 次」这类限流提示，帮助判断是账号问题还是被风控
     const retry = res.text.match(/还可以尝试\s*(\d+)\s*次/)?.[1];
+    const webLoginGuide = "；也可在插件设置里点「网页登录」，在应用内用浏览器完成登录";
     const hint = /验证码|seccode/i.test(res.text)
-      ? "站点要求输入验证码，请先在浏览器登录一次，再用「粘贴 Cookie」方式导入"
+      ? `站点要求输入验证码${webLoginGuide}`
       : retry
-        ? `登录失败（${detail || "账号或密码不正确"}）；该账号/IP 已被限流，剩余尝试 ${retry} 次，请稍后再试或改用 Cookie 登录`
+        ? `登录失败（${detail || "账号或密码不正确"}）；该账号/IP 已被限流，剩余尝试 ${retry} 次${webLoginGuide}`
         : "";
-    throw new Error(detail || hint || "登录失败，请检查账号密码是否正确");
+    throw new Error(`${detail || hint || "登录失败，请检查账号密码是否正确"}${webLoginGuide}`);
   }
 
   // 认证 cookie 已由 postSiteForm 吸收，这里持久化

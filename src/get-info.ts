@@ -80,7 +80,7 @@ export function buildPluginInfo(): InfoContract {
       "",
       "> 内容版权归原作者及出版方所有，本插件仅做页面解析，不存储、不分发任何漫画内容。",
     ].join("\n"),
-    version: "1.3.0",
+    version: "1.4.0",
     home: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`,
     updateUrl: UPDATE_URL,
     function: buildFunctions(),

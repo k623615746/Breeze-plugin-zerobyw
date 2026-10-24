@@ -15,6 +15,7 @@ import type {
   SearchComicPayload,
   SearchResultContract,
   SettingsBundleContract,
+  UserInfoBundleContract,
 } from "breeze-plugin-kit";
 import { authConfig, buildLoginBundle, buildUnauthorizedError, readLoginValues } from "breeze-plugin-kit";
 import { CATEGORIES, LANGS, PAGE_SIZE, PLACEHOLDER_IMAGE_URL, PLUGIN_ID, cleanText, createMetadata } from "./common";
@@ -536,7 +537,8 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
       ],
     },
     data: {
-      canShowUserInfo: false,
+      // 已登录才展示用户信息入口（学习 JmComic：canShowUserInfo + getUserInfoBundle）
+      canShowUserInfo: loggedIn,
       canLogin: true,
       loginTitle: "账号登录",
       loginSubtitle: "用账号密码登录，解锁全部章节",
@@ -589,6 +591,84 @@ async function getLoginBundle(): Promise<LoginBundleContract> {
     submitText: "登录",
     values: savedUsername ? { username: savedUsername } : {},
   });
+}
+
+/**
+ * 网页登录（学习 Breeze 宿主的 PluginWebLoginFlow 机制）：
+ * 返回 openUrl + setCookieFnPath 配置，宿主打开内置 WebView，
+ * 用户在网页里完成登录后，宿主持把 WebView 的 cookie 通过
+ * saveWebLoginCookie 回传本插件，实现「插件内跳转网页登录」。
+ */
+async function startWebLogin() {
+  await ensureCookie();
+  const origin = getOrigin();
+  return {
+    source: PLUGIN_ID,
+    message: "请在打开的网页中完成登录，成功后会自动同步",
+    data: {
+      openTitle: "zero搬运网 网页登录",
+      openUrl: `${origin}/member.php?mod=logging&action=login`,
+      setCookieFnPath: "saveWebLoginCookie",
+      // Discuz 登录成功后会跳转回站点首页，以此作为「登录完成」的判定
+      redirectWatchUrl: `${origin}/`,
+    },
+  };
+}
+
+/** 宿主 WebView 登录成功后回传 cookie（core: { cookie, url }） */
+async function saveWebLoginCookie(payload?: Record<string, unknown>) {
+  const record = (payload ?? {}) as Record<string, unknown>;
+  // 宿主经 core 传参，值出现在 payload 顶层；同时兼容 values.cookie（登录表单路径）
+  const values = (record.values ?? {}) as Record<string, unknown>;
+  const raw = String(record.cookie ?? values.cookie ?? "").trim();
+  if (!raw) {
+    throw new Error("未收到网页登录的 Cookie");
+  }
+  await saveCookie(raw);
+  const state = await detectLoginState();
+  if (!state.loggedIn) {
+    throw new Error(state.hint || "网页登录未成功，请重试");
+  }
+  return {
+    source: PLUGIN_ID,
+    message: "网页登录成功，登录态已同步",
+    data: { message: "网页登录成功", loggedIn: true },
+  };
+}
+
+/**
+ * 用户信息（学习 JmComic 的 UserInfoBundle）：登录后设置页展示账号。
+ * Discuz 的用户名在登录态页面里（pcmy 标题/欢迎语），提取不到时给出降级信息。
+ */
+async function getUserInfoBundle(): Promise<UserInfoBundleContract> {
+  await ensureCookie();
+  let username = "";
+  let uid = "";
+  try {
+    const html = await fetchSitePath(`/pc/pcmy/?tab=fav`);
+    uid = html.match(/discuz_uid\s*=\s*'(\d+)'/)?.[1] ?? "";
+    username =
+      cleanText(html.match(/欢迎您回来[，,\s]*<[^>]*>([^<]+)</)?.[1] ?? "") ||
+      cleanText(html.match(/<strong[^>]*>([^<]{1,30})<\/strong>/)?.[1] ?? "");
+  } catch {
+    // 页面抓取失败时退回保存的账号
+  }
+  if (!username) {
+    username = (await getSavedAccount()).username;
+  }
+  if (!username) {
+    throw buildUnauthorizedError(PLUGIN_ID, "未登录，请先登录");
+  }
+  return {
+    source: PLUGIN_ID,
+    scheme: { version: "1.0.0", type: "userInfo" },
+    data: {
+      title: "账号",
+      avatar: { id: uid || "me", url: "", name: username, path: "", extern: {} },
+      lines: [uid ? `${username}（UID ${uid}）` : username],
+      extern: { uid },
+    },
+  };
 }
 
 /** 备用：直接用 Cookie 登录（站点弹出验证码时走这条路） */
@@ -735,6 +815,7 @@ async function getCapabilitiesBundle(): Promise<CapabilitiesBundleContract> {
         { key: "domain-refresh", title: "刷新域名（从发布页获取最新）", fnPath: "refreshDomain" },
         { key: "domain-reset", title: "重置为内置默认域名", fnPath: "resetDomain" },
         { key: "cookie-login", title: "用 Cookie 登录（账号登录失败时的备用方式）", fnPath: "getCookieLoginBundle" },
+        { key: "web-login", title: "网页登录（账号登录失败时，在应用内打开网页登录）", fnPath: "startWebLogin" },
         { key: "check", title: "检查登录状态", fnPath: "checkLoginState" },
         { key: "clear", title: "清除登录 Cookie", fnPath: "clearCookieAction" },
         { key: "logout", title: "退出登录（同时清除保存的账号）", fnPath: "logoutAction" },
@@ -756,12 +837,15 @@ export default {
   fetchImageBytes,
   getDownloadConcurrency,
   getSettingsBundle,
+  getUserInfoBundle,
   getLoginBundle,
   getCookieLoginBundle,
   loginWithAccount,
   loginWithCookie,
   clearCookieAction,
   logoutAction,
+  startWebLogin,
+  saveWebLoginCookie,
   checkLoginState,
   refreshDomain,
   resetDomain,
