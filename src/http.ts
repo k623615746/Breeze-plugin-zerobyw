@@ -242,6 +242,25 @@ async function trySiteFetch(url: string, timeoutMs: number): Promise<string | nu
       console.log("[zerobyw] 请求失败:", res.status, url);
       return null;
     }
+    // 域名被 302 重定向到另一个 host（旧域名换成了新域名）→ 视为失效，触发域名发现
+    const requestedHost = (() => {
+      try {
+        return new URL(url).hostname;
+      } catch {
+        return "";
+      }
+    })();
+    const finalHost = (() => {
+      try {
+        return new URL(res.url || url).hostname;
+      } catch {
+        return requestedHost;
+      }
+    })();
+    if (requestedHost && finalHost && requestedHost !== finalHost) {
+      console.log("[zerobyw] 域名被重定向:", requestedHost, "→", finalHost, url);
+      return null;
+    }
     const text = await res.text();
     if (!cleanText(text)) {
       console.log("[zerobyw] 响应为空:", url);

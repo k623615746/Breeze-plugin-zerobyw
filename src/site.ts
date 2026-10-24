@@ -67,10 +67,14 @@ export function collectCandidates(publisherHtml: string): string[] {
     } catch {
       return;
     }
-    if (!isSiteHost(host)) {
+    const text = String($a.text() ?? "").trim();
+    // 「镜像」「点击进入」是发布页明确标注的官方地址，优先信任其文本标记，
+    // 不做 isSiteHost 过滤——站点近年改用不含 "zerobyw" 的随机域名（如 zerobyw33.com），
+    // 死抠域名关键词会漏掉新域名。
+    const isMarked = text.includes("镜像") || text.includes("点击进入");
+    if (!isMarked && !isSiteHost(host)) {
       return;
     }
-    const text = String($a.text() ?? "").trim();
     if (text.includes("镜像")) {
       mirrors.push(href);
     } else if (text.includes("点击进入")) {
