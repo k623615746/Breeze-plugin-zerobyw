@@ -84,6 +84,30 @@ await check("假账号登录：协议走通，返回明确失败", async () => {
   console.log(`    服务端返回：${message}`);
 });
 
+await check("未登录时「检查登录状态」抛 unauthorized（宿主据此拉起登录表单）", async () => {
+  let message = "";
+  try {
+    await plugin.checkLoginState();
+  } catch (error) {
+    message = error instanceof Error ? error.message : String(error);
+  }
+  assert.ok(message.length > 0, "未登录时应当抛错");
+  // 学习 copyComic：抛 type=unauthorized 的 JSON 错误，宿主识别后直接弹登录表单
+  let parsed: Record<string, unknown> = {};
+  try {
+    parsed = JSON.parse(message);
+  } catch {
+    // 非 JSON 也允许（环境限制时退化为普通错误）
+  }
+  assert.equal(parsed.type, "unauthorized", `错误不是 unauthorized 类型: ${message.slice(0, 120)}`);
+});
+
+await check("init 不因登录态问题阻塞（无保存账号时静默跳过）", async () => {
+  const result = await plugin.init();
+  assert.ok(result.source.length > 0);
+  assert.equal(result.data.ok, true);
+});
+
 await check("图标地址指向仓库资源", async () => {
   const info = await plugin.getInfo();
   assert.ok(info.iconUrl.includes("cdn.jsdelivr.net"), info.iconUrl);

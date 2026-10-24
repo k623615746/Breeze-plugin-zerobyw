@@ -16,12 +16,12 @@ import type {
   SearchResultContract,
   SettingsBundleContract,
 } from "breeze-plugin-kit";
-import { buildLoginBundle, buildUnauthorizedError, readLoginValues } from "breeze-plugin-kit";
+import { authConfig, buildLoginBundle, buildUnauthorizedError, readLoginValues } from "breeze-plugin-kit";
 import { CATEGORIES, LANGS, PAGE_SIZE, PLACEHOLDER_IMAGE_URL, PLUGIN_ID, cleanText, createMetadata } from "./common";
-import { clearCookie, ensureCookie, fetchImage, fetchSitePath, hasLoginSession, saveCookie } from "./http";
+import { clearCookie, ensureCookie, fetchImage, fetchSitePath, getSessionCookie, hasLoginSession, saveCookie } from "./http";
 import { getOrigin } from "./origin";
 import { refreshOrigin, resetOriginToDefault } from "./site";
-import { loginWithAccount as performAccountLogin } from "./login";
+import { loginWithAccount as performAccountLogin, loginWithSavedAccount, getSavedAccount } from "./login";
 import { buildPluginInfo } from "./get-info";
 import {
   parseComicDetail,
@@ -119,6 +119,21 @@ async function loadCatalog(comicId: string, firstChapterId: string) {
 async function init(): Promise<{ source: string; data: { ok: boolean } }> {
   await ensureCookie();
   console.log("[zerobyw] init，当前域名:", getOrigin());
+  // 学习 copyComic：有保存的账号密码时自动续登。先探测登录态，
+  // 已登录则跳过（省一次登录请求，也避免触发站点限流）。
+  try {
+    const state = await detectLoginState();
+    if (!state.loggedIn) {
+      const saved = await getSavedAccount();
+      if (saved.username && saved.password) {
+        console.log("[zerobyw] 登录态失效，用保存的账号自动续登");
+        await loginWithSavedAccount();
+      }
+    }
+  } catch (error) {
+    // 自动续登失败不阻塞 init（无账号/未登录也能浏览免费内容）
+    console.warn("[zerobyw] init 自动续登失败:", error);
+  }
   return { source: PLUGIN_ID, data: { ok: true } };
 }
 
@@ -531,6 +546,13 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
 }
 
 async function getLoginBundle(): Promise<LoginBundleContract> {
+  // 回填上次登录的账号（学习 copyComic：values 带 username）
+  let savedUsername = "";
+  try {
+    savedUsername = (await getSavedAccount()).username;
+  } catch {
+    savedUsername = "";
+  }
   return buildLoginBundle(PLUGIN_ID, {
     title: "zero搬运网 账号登录",
     fields: [
@@ -565,6 +587,7 @@ async function getLoginBundle(): Promise<LoginBundleContract> {
     ],
     submitFnPath: "loginWithAccount",
     submitText: "登录",
+    values: savedUsername ? { username: savedUsername } : {},
   });
 }
 
@@ -608,21 +631,32 @@ async function loginWithAccount(payload?: Record<string, unknown>) {
   };
 }
 
-/** 用 /pc/pcmy/ 页面判断登录态 */
+/** 用 /pc/pcmy/ 页面判断登录态（auth cookie 为决定性证据，页面特征为辅） */
 async function detectLoginState(): Promise<{ loggedIn: boolean; hint: string }> {
   try {
     const htmlText = await fetchSitePath(`/pc/pcmy/?tab=fav`);
     const hasLogout = /action=logout|act=logout|退出/.test(htmlText);
     const hasLoginForm = /action=login/.test(htmlText);
-    if (hasLogout) {
+    // Discuz 登录成功必下发 _auth cookie——这是登录态的充要条件。
+    // 页面特征为辅：有些未登录请求带 session 时不跳登录页（无 action=login），
+    // 不能因此误判为已登录。
+    const hasAuth = /(?:^|;\s*)[^;]*_auth=/i.test(getSessionCookie());
+    if (hasAuth) {
       return { loggedIn: true, hint: "登录成功" };
     }
     if (hasLoginForm) {
-      return { loggedIn: false, hint: "Cookie 无效或已过期" };
+      return { loggedIn: false, hint: "登录已失效或未登录" };
     }
-    return { loggedIn: true, hint: "已保存，未检测到明显的未登录提示" };
+    if (hasLogout) {
+      return { loggedIn: true, hint: "已登录" };
+    }
+    return { loggedIn: false, hint: "登录已失效或未登录" };
   } catch {
-    return { loggedIn: true, hint: "Cookie 已保存（未能自动验证）" };
+    // 页面探测失败时退回 cookie 判定：有 auth 算已登录，否则保守视为未登录
+    const hasAuth = /(?:^|;\s*)[^;]*_auth=/i.test(getSessionCookie());
+    return hasAuth
+      ? { loggedIn: true, hint: "登录态已保存（未能自动验证）" }
+      : { loggedIn: false, hint: "登录已失效或未登录" };
   }
 }
 
@@ -649,10 +683,29 @@ async function clearCookieAction() {
   return { source: PLUGIN_ID, data: { ok: true, message: "已清除登录 Cookie" } };
 }
 
+/** 退出登录：清除 Cookie + 保存的账号密码（下次 init 不再自动续登） */
+async function logoutAction() {
+  await clearCookie();
+  try {
+    await Promise.all([
+      authConfig.save("auth.username", ""),
+      authConfig.save("auth.password", ""),
+    ]);
+  } catch {
+    // 清除失败不影响 Cookie 清除
+  }
+  return { source: PLUGIN_ID, data: { ok: true, message: "已退出登录（Cookie 与保存的账号均已清除）" } };
+}
+
 async function checkLoginState() {
   await ensureCookie();
   const state = await detectLoginState();
-  return { source: PLUGIN_ID, data: { ok: state.loggedIn, message: state.hint } };
+  // 未登录时抛 unauthorized（copyComic 模式）：宿主会直接弹出插件的登录表单，
+  // 比返回 ok:false 更省一步操作
+  if (!state.loggedIn) {
+    throw buildUnauthorizedError(PLUGIN_ID, state.hint || "登录已失效，请重新登录");
+  }
+  return { source: PLUGIN_ID, data: { ok: true, message: state.hint } };
 }
 
 /** 手动刷新域名：抓官方发布页并探测可用域名 */
@@ -684,6 +737,7 @@ async function getCapabilitiesBundle(): Promise<CapabilitiesBundleContract> {
         { key: "cookie-login", title: "用 Cookie 登录（账号登录失败时的备用方式）", fnPath: "getCookieLoginBundle" },
         { key: "check", title: "检查登录状态", fnPath: "checkLoginState" },
         { key: "clear", title: "清除登录 Cookie", fnPath: "clearCookieAction" },
+        { key: "logout", title: "退出登录（同时清除保存的账号）", fnPath: "logoutAction" },
       ],
     },
     data: {},
@@ -707,6 +761,7 @@ export default {
   loginWithAccount,
   loginWithCookie,
   clearCookieAction,
+  logoutAction,
   checkLoginState,
   refreshDomain,
   resetDomain,

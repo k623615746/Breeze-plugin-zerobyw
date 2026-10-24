@@ -6,12 +6,17 @@
  * 登录成功后服务端通过 Set-Cookie 下发认证 cookie（前缀形如 W6vj_2132_，
  * 每个站点实例可能不同，所以整包按名字存取，不假设固定前缀）。
  */
+import { authConfig } from "breeze-plugin-kit";
 import { cleanText } from "./common";
 import { getOrigin, setOrigin } from "./origin";
 import { fetchSitePath, getSessionCookie, postSiteForm, saveCookie } from "./http";
 import { persistCurrentOrigin } from "./site";
 
 const LOGIN_PAGE = "/member.php?mod=logging&action=login";
+
+/** 保存的账号密码配置键（学习 copyComic：登录成功后留存，供 init 时自动续登） */
+const AUTH_USERNAME_KEY = "auth.username";
+const AUTH_PASSWORD_KEY = "auth.password";
 
 export type LoginForm = {
   formhash: string;
@@ -24,6 +29,22 @@ export type LoginResult = {
   /** 登录后 cookie 里的认证项数量，便于排查 */
   cookieCount: number;
 };
+
+/** 读取保存的账号密码（供 init 自动续登与登录表单回填） */
+export async function getSavedAccount(): Promise<{ username: string; password: string }> {
+  try {
+    const [username, password] = await Promise.all([
+      authConfig.load(AUTH_USERNAME_KEY, ""),
+      authConfig.load(AUTH_PASSWORD_KEY, ""),
+    ]);
+    return {
+      username: String(username ?? "").trim(),
+      password: typeof password === "string" ? password : "",
+    };
+  } catch {
+    return { username: "", password: "" };
+  }
+}
 
 /** 抓取登录页，提取这次会话的 formhash 与 loginhash */
 export async function fetchLoginForm(): Promise<LoginForm> {
@@ -168,11 +189,48 @@ export async function loginWithAccount(input: {
 
   // 认证 cookie 已由 postSiteForm 吸收，这里持久化
   const saved = await saveCookieFromSession();
+  // 同时留存账号密码，供 App 重启（init）时自动续登——cookie 过期后无需手动再登一次
+  try {
+    await Promise.all([
+      authConfig.save(AUTH_USERNAME_KEY, username),
+      authConfig.save(AUTH_PASSWORD_KEY, password),
+    ]);
+  } catch {
+    // 保存失败不影响本次登录成功
+  }
   return {
     ok: true,
     message: "登录成功",
     cookieCount: saved,
   };
+}
+
+/**
+ * 用保存的账号密码自动登录（init 自动续登用）。
+ * 最多 3 次重试（学习 copyComic 的 loginForInit）；没有保存账号则直接跳过。
+ */
+export async function loginWithSavedAccount(): Promise<LoginResult | null> {
+  const { username, password } = await getSavedAccount();
+  if (!username || !password) {
+    console.info("[zerobyw] 无保存的账号，跳过自动登录");
+    return null;
+  }
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const result = await loginWithAccount({ username, password });
+      console.info(`[zerobyw] 自动登录成功（第 ${attempt} 次尝试）`);
+      return result;
+    } catch (error) {
+      lastError = error;
+      console.warn(`[zerobyw] 自动登录失败（第 ${attempt}/3 次）`, error);
+      // 账号被限流时等 5 秒再试
+      await sleep(5000);
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`自动登录失败，已重试 3 次: ${String(lastError)}`);
 }
 
 /** 把当前会话 cookie 落盘，返回 cookie 项数 */
