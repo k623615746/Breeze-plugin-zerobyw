@@ -4,19 +4,49 @@
 
 按 Breeze 官方插件规范实现（`breeze-plugin-kit` + QuickJS 运行时 + `BreezeHtml` 原生解析），不依赖任何第三方解析库。
 
+- 仓库：<https://github.com/k623615746/Breeze-plugin-zerobyw>
+- 版本：1.0.0
+
 ---
 
 ## 安装
 
-产物在 `dist/`：
+### 方式一：插件商店（推荐）
+
+仓库名符合 Breeze 的收录规范（`Breeze-plugin-` 前缀 + 公开仓库 + 根目录有 `manifest.json`），
+客户端会扫描 GitHub 后自动收录。入库通常在 **2~4 小时**内完成，之后可在
+**发现页 → 插件 → 商店** 中搜索「zero搬运网」安装。
+
+### 方式二：本地安装
+
+下载 [Releases](https://github.com/k623615746/Breeze-plugin-zerobyw/releases/latest) 里的
+`breeze-plugin-zerobyw.bundle.cjs`，然后：
+**发现页 → 插件 → 设置 → 插件管理 → 更新 → 从本地安装**。
+
+### 方式三：网络安装
+
+在同一个「更新」对话框选「从网络安装」，填入 Release 资产直链：
+
+```
+https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.0.0/breeze-plugin-zerobyw.bundle.cjs
+```
+
+### 产物说明
 
 | 文件 | 用途 |
 | --- | --- |
-| `breeze-plugin-zerobyw.bundle.cjs` | **本地安装用**（Breeze → 发现页 → 插件 → 设置 → 插件管理 → 更新 → 从本地安装） |
-| `breeze-plugin-zerobyw.bundle.cjs.br` | 同上，Brotli 压缩版，体积更小 |
-| `manifest.json` | 发布/上架到插件列表时用 |
+| `dist/breeze-plugin-zerobyw.bundle.cjs` | 插件本体，本地/网络安装用 |
+| `dist/breeze-plugin-zerobyw.bundle.cjs.br` | Brotli 压缩版，自动更新优先拉这个 |
+| `manifest.json` | 插件元信息，商店扫描与自动更新依赖它 |
 
-本插件未发布到 GitHub / npm，`getInfo` 里没有 `npmName` / `updateUrl`，因此**不支持自动更新**，升级需手动重装 bundle。
+### 自动更新
+
+`getInfo` 与 `manifest.json` 均已配置 `updateUrl` 指向 GitHub Release API，因此支持自动更新：
+客户端启动后会静默比对版本，**远端版本号大于本地**时才下载安装。
+
+发新版本流程：改 `src/get-info.ts` 里的 `version` → 重新构建 → 提交推送 →
+建一个 **tag 与 version 完全一致** 的 Release（如 `1.0.0`，别加 `v` 前缀以免版本比对不一致），
+把 `dist/` 两个产物和 `manifest.json` 一起上传。
 
 ---
 
