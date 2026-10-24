@@ -5,7 +5,7 @@
 按 Breeze 官方插件规范实现（`breeze-plugin-kit` + QuickJS 运行时 + `BreezeHtml` 原生解析），不依赖任何第三方解析库。
 
 - 仓库：<https://github.com/k623615746/Breeze-plugin-zerobyw>
-- 版本：1.0.0
+- 版本：1.1.0
 
 ---
 
@@ -64,6 +64,7 @@ https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.0.0/bree
 | 章节列表 | **完整目录**（见下方说明） |
 | 阅读 | 全部内页图片，支持下载 |
 | 登录 | Cookie 登录，解锁受限章节 |
+| 域名自愈 | 域名失效时自动从官方发布页获取最新域名并切换 |
 
 ### 章节列表为什么单独处理
 
@@ -75,6 +76,44 @@ https://github.com/k623615746/Breeze-plugin-zerobyw/releases/download/1.0.0/bree
 ```
 
 这样即使未登录，也能看到完整话数，点开受限章节时会提示登录，而不是整个目录残缺。
+
+---
+
+## 域名自动切换
+
+这个站的域名换得很勤（`zerobyw33` → `zerobywb` → `zerobywai` …），官方在
+<https://zerobyw.github.io/> 维护了一张「永久发布页」，按时间倒序记录每次更新。
+
+插件内置了自愈机制，**域名挂了不需要手动改代码**：
+
+```
+请求失败（DNS 失败 / 连接重置 / 404 / 命中停放页）
+  → 抓发布页 https://zerobyw.github.io/
+  → 收集候选：顶部「镜像」按钮 > 时间线各条「点击进入」
+  → 逐个探测 /pc/pc/ 是否为真实站点页（https 优先，回落 http）
+  → 第一个通过的即最新域名 → 持久化 → 用新域名重试原请求
+```
+
+几个实现细节：
+
+- **不是简单取第一个链接**。发布页的候选里混着论坛、发卡网、广告外链，所以先按
+  host 含 `zerobyw` 过滤并排除 `github.io` 自身，再按「镜像按钮 > 点击进入 > 其它」排序。
+- **必须验证，不能只信顺序**。发布页的第一条有时还没更新，所以每个候选都实测
+  `/pc/pc/` 返回的 HTML 是否含 `pc-manga-grid` 等站点特征，同时排除停放页特征
+  （`domain is for sale` / `域名出售`）。
+- **图片 CDN 跟着换**。图片在 `tupa.<主域名>`，主站换域后原图片地址会失效，
+  下载失败时按当前主域名推导新 CDN 域名重试。
+- **持久化**。新域名写入插件配置（`site.origin`），重启后直接生效，不必每次探测。
+
+设置页会显示「当前域名」，底部提供两个手动动作：
+
+| 动作 | 作用 |
+| --- | --- |
+| 刷新域名 | 立即抓发布页重新探测 |
+| 重置为内置默认域名 | 回到 `www.zerobyw33.com` |
+
+> 发布页本身在 `github.io`，如果你所在网络访问不了它，自愈会失败并沿用当前域名，
+> 此时需要手动在设置里刷新，或等网络恢复。
 
 ---
 
@@ -96,16 +135,18 @@ Cookie 只保存在本机插件配置（`authConfig`，Key 为 `auth.cookie`）�
 
 ```
 src/
-  common.ts   # 常量（分类表、域名、UA）、HTML 实体解码、URL 归一化、图片/元信息构造
-  http.ts     # fetch 封装：UA/Referer/Cookie、超时、二进制透传头
+  origin.ts   # 域名状态：默认/当前/归一化、站点特征判定、CDN 域名推导
+  site.ts     # 域名发现：抓发布页 → 候选 → 探测 → 持久化
+  common.ts   # 常量（分类表、UA）、HTML 实体解码、URL 归一化、图片/元信息构造
+  http.ts     # fetch 封装：UA/Referer/Cookie、超时、二进制透传头、失效自动换域重试
   parse.ts    # BreezeHtml 解析：列表 / 详情 / 阅读页 / 目录
   get-info.ts # 插件注册信息 + manifest 生成
-  index.ts    # 16 个 fnPath 实现
+  index.ts    # 18 个 fnPath 实现
 ```
 
 实现的 fnPath：
 
-`init` `getInfo` `searchComic` `getRankingData` `getRankingFilterBundle` `getComicDetail` `getReadSnapshot` `getChapter` `fetchImageBytes` `getDownloadConcurrency` `getSettingsBundle` `getLoginBundle` `loginWithCookie` `clearCookieAction` `checkLoginState` `getCapabilitiesBundle`
+`init` `getInfo` `searchComic` `getRankingData` `getRankingFilterBundle` `getComicDetail` `getReadSnapshot` `getChapter` `fetchImageBytes` `getDownloadConcurrency` `getSettingsBundle` `getLoginBundle` `loginWithCookie` `clearCookieAction` `checkLoginState` `refreshDomain` `resetDomain` `getCapabilitiesBundle`
 
 几个关键点：
 
@@ -134,6 +175,9 @@ npx tsx build/generate-brotli.ts
 # 离线解析回归（用真实抓取页面，cheerio 顶替 BreezeHtml）
 npx tsx test/parse.test.ts     # 37 项
 
+# 域名发现（发布页解析 + 真实失效切换）
+npx tsx test/domain.test.ts    # 18 项
+
 # 端到端（真实请求站点，含图片下载与 JPEG 头校验）
 npx tsx test/e2e.test.ts       # 10 项
 ```
@@ -147,7 +191,7 @@ npx tsx test/e2e.test.ts       # 10 项
 - **章节内容受站点登录墙限制**，未登录只能读免费章节，这是站点策略，插件不做绕过。
 - 站点无公开点赞/评论 API，`allowLike` / `allowComments` 已置 `false`。
 - 只解析 HTML，站点若改成前端渲染（JSON 接口），需要改 `parse.ts`。
-- 域名可能更换（`zerobyw33` 的数字后缀会变），换域名时改 `common.ts` 里的 `SITE_ORIGIN` / `IMAGE_ORIGIN` 即可。
+- 域名会自动跟随发布页切换；内置默认域名为 `www.zerobyw33.com`（见 `src/origin.ts` 的 `DEFAULT_ORIGIN`）。
 
 ---
 

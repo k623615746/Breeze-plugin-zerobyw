@@ -1,10 +1,33 @@
 import { authConfig } from "breeze-plugin-kit";
-import { PLUGIN_ID, SITE_ORIGIN, USER_AGENT, absoluteUrl, cleanText } from "./common";
+import { USER_AGENT, absoluteUrl, cleanText } from "./common";
+import {
+  deriveImageHost,
+  getOrigin,
+  isSiteHost,
+  looksLikeParkedPage,
+  originHost,
+} from "./origin";
+import { discoverOrigin, loadPersistedOrigin } from "./site";
 
 const COOKIE_CONFIG_KEY = "auth.cookie";
 
 let cookieCache = "";
 let cookieLoaded = false;
+
+/** 域名只从持久化配置恢复一次 */
+let originLoaded = false;
+
+async function ensureOriginLoaded(): Promise<void> {
+  if (originLoaded) {
+    return;
+  }
+  originLoaded = true;
+  try {
+    await loadPersistedOrigin();
+  } catch {
+    // 恢复失败沿用默认域名
+  }
+}
 
 /** 读取并缓存用户 Cookie（登录态由插件自行维护，宿主不参与） */
 export async function ensureCookie(): Promise<string> {
@@ -48,12 +71,10 @@ export function normalizeCookie(raw: unknown): string {
   if (!value) {
     return "";
   }
-  // 支持整段请求头粘贴：Cookie: a=1; b=2
   const headerMatch = value.match(/cookie\s*:\s*([\s\S]+)/i);
   if (headerMatch) {
     value = headerMatch[1];
   }
-  // 去掉换行与多余空白，规范为 `k=v; k=v`
   return value
     .split(/[\r\n]+/)
     .join("; ")
@@ -63,7 +84,7 @@ export function normalizeCookie(raw: unknown): string {
     .join("; ");
 }
 
-/** 判断 Cookie 中是否包含站点需要的登录会话键 */
+/** 判断 Cookie 中是否包含登录会话键 */
 export function hasLoginSession(cookie: string): boolean {
   if (!cookie) {
     return false;
@@ -71,14 +92,8 @@ export function hasLoginSession(cookie: string): boolean {
   return /(?:^|;\s*)(?:[a-z0-9_]*auth|[a-z0-9_]*sid|[a-z0-9_]*login)/i.test(cookie);
 }
 
-function refererFor(url: string): string {
-  if (url.includes("/pc/view/")) {
-    return `${SITE_ORIGIN}/pc/pc/`;
-  }
-  if (url.includes("/pc/details/")) {
-    return `${SITE_ORIGIN}/pc/pc/`;
-  }
-  return `${SITE_ORIGIN}/`;
+function refererFor(): string {
+  return `${getOrigin()}/pc/pc/`;
 }
 
 /** 构造通用请求头 */
@@ -87,12 +102,11 @@ export function buildHeaders(url: string, extra: Record<string, string> = {}): R
     "User-Agent": USER_AGENT,
     Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language": "zh-CN,zh;q=0.9,ja;q=0.8,en;q=0.7",
-    Referer: refererFor(url),
+    Referer: refererFor(),
     ...extra,
   };
-  const cookie = cookieCache;
-  if (cookie) {
-    headers.Cookie = cookie;
+  if (cookieCache) {
+    headers.Cookie = cookieCache;
   }
   return headers;
 }
@@ -104,70 +118,166 @@ export type FetchTextResult = {
   text: string;
 };
 
-/** 请求 HTML / 文本 */
+/** 通用文本请求（用于外部站点，不参与域名自动切换） */
 export async function fetchText(
-  pathOrUrl: string,
+  url: string,
   options: { timeoutMs?: number; headers?: Record<string, string> } = {},
 ): Promise<FetchTextResult> {
   await ensureCookie();
-  const url = absoluteUrl(pathOrUrl);
-  const timeoutMs = options.timeoutMs ?? 20000;
-  const res = await fetch(url, {
-    headers: buildHeaders(url, options.headers),
+  const target = absoluteUrl(url);
+  const res = await fetch(target, {
+    headers: buildHeaders(target, options.headers),
     redirect: "follow",
-    signal: AbortSignal.timeout(timeoutMs),
+    signal: AbortSignal.timeout(options.timeoutMs ?? 20000),
   });
   const text = await res.text();
-  return {
-    ok: res.ok,
-    status: res.status,
-    url: res.url || url,
-    text,
-  };
+  return { ok: res.ok, status: res.status, url: res.url || target, text };
 }
 
-/** 请求 JSON（站点若改版走接口时使用） */
-export async function fetchJson<T = unknown>(
-  pathOrUrl: string,
-  options: { timeoutMs?: number; headers?: Record<string, string> } = {},
-): Promise<T> {
-  const text = (await fetchText(pathOrUrl, {
-    ...options,
-    headers: { Accept: "application/json, text/plain, */*", ...(options.headers ?? {}) },
-  })).text;
+/** 单次站内请求；失败返回 null 而不抛错，交给上层决定是否换域名 */
+async function trySiteFetch(url: string, timeoutMs: number): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: buildHeaders(url),
+      redirect: "follow",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) {
+      console.log("[zerobyw] 请求失败:", res.status, url);
+      return null;
+    }
+    const text = await res.text();
+    if (!cleanText(text)) {
+      console.log("[zerobyw] 响应为空:", url);
+      return null;
+    }
+    if (looksLikeParkedPage(text)) {
+      console.log("[zerobyw] 命中域名停放页:", url);
+      return null;
+    }
+    return text;
+  } catch (error) {
+    console.log("[zerobyw] 请求异常:", url, error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * 请求站内页面（传相对路径，如 `/pc/pc/?page=1`）。
+ *
+ * 域名失效时（DNS 失败 / 连接被重置 / 404 / 停放页）会自动去官方发布页
+ * 发现最新域名，并用新域名重试一次。
+ */
+export async function fetchSitePath(
+  path: string,
+  options: { timeoutMs?: number } = {},
+): Promise<string> {
+  await ensureCookie();
+  await ensureOriginLoaded();
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const timeoutMs = options.timeoutMs ?? 20000;
+
+  const firstOrigin = getOrigin();
+  const first = await trySiteFetch(`${firstOrigin}${normalizedPath}`, timeoutMs);
+  if (first !== null) {
+    return first;
+  }
+
+  console.log("[zerobyw] 当前域名请求失败，触发域名发现:", firstOrigin);
+  let nextOrigin = firstOrigin;
+  try {
+    nextOrigin = await discoverOrigin();
+  } catch (error) {
+    console.log("[zerobyw] 域名发现失败:", error instanceof Error ? error.message : error);
+  }
+
+  if (nextOrigin && nextOrigin !== firstOrigin) {
+    const second = await trySiteFetch(`${nextOrigin}${normalizedPath}`, timeoutMs);
+    if (second !== null) {
+      return second;
+    }
+    console.log("[zerobyw] 新域名重试仍失败:", nextOrigin);
+  }
+
+  const tried = nextOrigin !== firstOrigin ? `${firstOrigin} 与 ${nextOrigin}` : firstOrigin;
+  throw new Error(`请求失败，且未找到可用域名（已尝试 ${tried}）`);
+}
+
+/** 请求站内 JSON 接口（保留给站点改版使用） */
+export async function fetchSiteJson<T = unknown>(path: string): Promise<T> {
+  const text = await fetchSitePath(path);
   return JSON.parse(text) as T;
 }
 
-/** 请求页面并要求成功，失败时抛出可读错误 */
-export async function fetchPage(
-  pathOrUrl: string,
-  options: { timeoutMs?: number } = {},
-): Promise<string> {
-  const result = await fetchText(pathOrUrl, options);
-  if (!result.ok) {
-    throw new Error(`请求失败（HTTP ${result.status}）：${absoluteUrl(pathOrUrl)}`);
+async function tryImage(target: string, timeoutMs: number): Promise<Uint8Array | null> {
+  try {
+    const res = await fetch(target, {
+      headers: buildHeaders(target, {
+        // 必须带该头，让宿主透传原始二进制
+        "x-rquickjs-host-offload-binary-v1": "1",
+        Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+      }),
+      redirect: "follow",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) {
+      console.log("[zerobyw] 图片请求失败:", res.status, target);
+      return null;
+    }
+    return new Uint8Array(await res.arrayBuffer());
+  } catch (error) {
+    console.log("[zerobyw] 图片请求异常:", target, error instanceof Error ? error.message : error);
+    return null;
   }
-  if (!cleanText(result.text)) {
-    throw new Error(`页面内容为空：${absoluteUrl(pathOrUrl)}`);
-  }
-  return result.text;
 }
 
-/** 下载图片二进制 */
+/**
+ * 下载图片。
+ * 图片走 tupa 独立 CDN；主站换域名后 CDN 域名会跟着变，
+ * 所以原地址失败时按当前主站域名推导新 CDN 域名重试。
+ */
 export async function fetchImage(url: string, timeoutMs = 30000): Promise<Uint8Array> {
   await ensureCookie();
+  await ensureOriginLoaded();
+
   const target = absoluteUrl(url);
-  const res = await fetch(target, {
-    headers: buildHeaders(target, {
-      // 必须带该头，让宿主透传原始二进制
-      "x-rquickjs-host-offload-binary-v1": "1",
-      Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-    }),
-    redirect: "follow",
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  if (!res.ok) {
-    throw new Error(`图片下载失败（HTTP ${res.status}）`);
+  const direct = await tryImage(target, timeoutMs);
+  if (direct) {
+    return direct;
   }
-  return new Uint8Array(await res.arrayBuffer());
+
+  let host = "";
+  try {
+    host = new URL(target).hostname;
+  } catch {
+    host = "";
+  }
+
+  if (host && isSiteHost(host)) {
+    const derived = deriveImageHost(originHost());
+    if (derived && derived !== host) {
+      const retried = await tryImage(target.replace(host, derived), timeoutMs);
+      if (retried) {
+        console.log("[zerobyw] 图片改用当前 CDN 域名成功:", derived);
+        return retried;
+      }
+    }
+
+    try {
+      await discoverOrigin();
+    } catch {
+      // 忽略，走最终报错
+    }
+    const derivedAfter = deriveImageHost(originHost());
+    if (derivedAfter && derivedAfter !== host) {
+      const retried = await tryImage(target.replace(host, derivedAfter), timeoutMs);
+      if (retried) {
+        console.log("[zerobyw] 图片改用新发现域名成功:", derivedAfter);
+        return retried;
+      }
+    }
+  }
+
+  throw new Error("图片下载失败，且未找到可用图片域名");
 }

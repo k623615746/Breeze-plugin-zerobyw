@@ -17,8 +17,10 @@ import type {
   SettingsBundleContract,
 } from "breeze-plugin-kit";
 import { buildLoginBundle, buildUnauthorizedError, readLoginValues } from "breeze-plugin-kit";
-import { CATEGORIES, LANGS, PAGE_SIZE, PLUGIN_ID, SITE_ORIGIN, cleanText, createMetadata } from "./common";
-import { clearCookie, ensureCookie, fetchImage, fetchPage, hasLoginSession, saveCookie } from "./http";
+import { CATEGORIES, LANGS, PAGE_SIZE, PLACEHOLDER_IMAGE_URL, PLUGIN_ID, cleanText, createMetadata } from "./common";
+import { clearCookie, ensureCookie, fetchImage, fetchSitePath, hasLoginSession, saveCookie } from "./http";
+import { getOrigin } from "./origin";
+import { refreshOrigin, resetOriginToDefault } from "./site";
 import { buildPluginInfo } from "./get-info";
 import {
   parseComicDetail,
@@ -76,7 +78,7 @@ function buildListPath(params: {
   if (params.shuxing) {
     search.set("shuxing", params.shuxing);
   }
-  return `${SITE_ORIGIN}/pc/pc/?${search.toString()}`;
+  return `/pc/pc/?${search.toString()}`;
 }
 
 /** 章节被站点登录墙拦截时，抛标准 unauthorized 让宿主引导登录 */
@@ -89,7 +91,7 @@ async function loadReader(chapterId: string): Promise<ReaderParsed> {
   if (!chapterId) {
     throw new Error("缺少章节标识，无法加载阅读页");
   }
-  const htmlText = await fetchPage(`${SITE_ORIGIN}/pc/view/index.php?zjid=${encodeURIComponent(chapterId)}`);
+  const htmlText = await fetchSitePath(`/pc/view/index.php?zjid=${encodeURIComponent(chapterId)}`);
   const parsed = parseReader(htmlText, chapterId);
   if (parsed.imageUrls.length === 0) {
     if (parsed.needLogin) {
@@ -115,7 +117,7 @@ async function loadCatalog(comicId: string, firstChapterId: string) {
 
 async function init(): Promise<{ source: string; data: { ok: boolean } }> {
   await ensureCookie();
-  console.log("[zerobyw] init");
+  console.log("[zerobyw] init，当前域名:", getOrigin());
   return { source: PLUGIN_ID, data: { ok: true } };
 }
 
@@ -149,7 +151,7 @@ async function searchComic(payload: SearchComicPayload): Promise<SearchResultCon
     };
   }
 
-  const htmlText = await fetchPage(buildListPath({ page, keyword }));
+  const htmlText = await fetchSitePath(buildListPath({ page, keyword }));
   const { cards, totalPages } = parseComicList(htmlText, page);
 
   const items = cards.map((card) => ({
@@ -163,7 +165,7 @@ async function searchComic(payload: SearchComicPayload): Promise<SearchResultCon
     updatedAt: "",
     cover: {
       id: card.kuid,
-      url: card.coverUrl || `${SITE_ORIGIN}/favicon.ico`,
+      url: card.coverUrl || PLACEHOLDER_IMAGE_URL,
       name: card.title,
       path: `comic/${card.kuid}/cover.jpg`,
       extern: {},
@@ -205,7 +207,7 @@ async function getRankingData(payload: SearchComicPayload): Promise<ComicPagedLi
   const jindu = pickString(extern.jindu, record.jindu);
   const shuxing = pickString(extern.shuxing, record.shuxing);
 
-  const htmlText = await fetchPage(
+  const htmlText = await fetchSitePath(
     buildListPath({ page, categoryId, order, dir, jindu, shuxing }),
   );
   const { cards, totalPages } = parseComicList(htmlText, page);
@@ -225,7 +227,7 @@ async function getRankingData(payload: SearchComicPayload): Promise<ComicPagedLi
         updatedAt: "",
         cover: {
           id: card.kuid,
-          url: card.coverUrl || `${SITE_ORIGIN}/favicon.ico`,
+          url: card.coverUrl || PLACEHOLDER_IMAGE_URL,
           name: card.title,
           path: `comic/${card.kuid}/cover.jpg`,
           extern: {},
@@ -317,7 +319,7 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
     throw new Error("缺少漫画 ID");
   }
 
-  const htmlText = await fetchPage(`${SITE_ORIGIN}/pc/details/?kuid=${encodeURIComponent(comicId)}`);
+  const htmlText = await fetchSitePath(`/pc/details/?kuid=${encodeURIComponent(comicId)}`);
   const detail = parseComicDetail(htmlText, comicId);
 
   let chapters = [] as ReturnType<typeof toChapterSummaries>;
@@ -369,13 +371,13 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
           description: descriptionParts.join(""),
           cover: {
             id: comicId,
-            url: detail.coverUrl || `${SITE_ORIGIN}/favicon.ico`,
+            url: detail.coverUrl || PLACEHOLDER_IMAGE_URL,
             name: detail.title,
             path: `comic/${comicId}/cover.jpg`,
             extern: {},
           },
           metadata,
-          extern: { detailUrl: `${SITE_ORIGIN}/pc/details/?kuid=${comicId}` },
+          extern: { detailUrl: `${getOrigin()}/pc/details/?kuid=${comicId}` },
         },
         preview: { enabled: false },
         eps: chapters,
@@ -506,6 +508,11 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
       type: "settings",
       sections: [
         {
+          id: "domain",
+          title: `当前域名：${getOrigin()}`,
+          fields: [],
+        },
+        {
           id: "about",
           title: loggedIn ? "登录状态：已配置 Cookie" : "登录状态：未登录（仅可阅读免费章节）",
           fields: [],
@@ -543,7 +550,7 @@ async function getLoginBundle(): Promise<LoginBundleContract> {
 /** 用 /pc/pcmy/ 页面判断登录态 */
 async function detectLoginState(): Promise<{ loggedIn: boolean; hint: string }> {
   try {
-    const htmlText = await fetchPage(`${SITE_ORIGIN}/pc/pcmy/?tab=fav`);
+    const htmlText = await fetchSitePath(`/pc/pcmy/?tab=fav`);
     const hasLogout = /action=logout|act=logout|退出/.test(htmlText);
     const hasLoginForm = /action=login/.test(htmlText);
     if (hasLogout) {
@@ -587,6 +594,23 @@ async function checkLoginState() {
   return { source: PLUGIN_ID, data: { ok: state.loggedIn, message: state.hint } };
 }
 
+/** 手动刷新域名：抓官方发布页并探测可用域名 */
+async function refreshDomain() {
+  const before = getOrigin();
+  const result = await refreshOrigin();
+  const message = result.changed
+    ? `域名已更新：${before} → ${result.origin}`
+    : `域名未变化：${result.origin}`;
+  return { source: PLUGIN_ID, message, data: { ok: true, origin: result.origin, changed: result.changed, message } };
+}
+
+/** 重置为内置默认域名 */
+async function resetDomain() {
+  const origin = await resetOriginToDefault();
+  const message = `已重置为默认域名：${origin}`;
+  return { source: PLUGIN_ID, message, data: { ok: true, origin, message } };
+}
+
 async function getCapabilitiesBundle(): Promise<CapabilitiesBundleContract> {
   return {
     source: PLUGIN_ID,
@@ -594,6 +618,8 @@ async function getCapabilitiesBundle(): Promise<CapabilitiesBundleContract> {
       version: "1.0.0",
       type: "capabilities",
       actions: [
+        { key: "domain-refresh", title: "刷新域名（从发布页获取最新）", fnPath: "refreshDomain" },
+        { key: "domain-reset", title: "重置为内置默认域名", fnPath: "resetDomain" },
         { key: "check", title: "检查登录状态", fnPath: "checkLoginState" },
         { key: "clear", title: "清除登录 Cookie", fnPath: "clearCookieAction" },
       ],
@@ -618,5 +644,7 @@ export default {
   loginWithCookie,
   clearCookieAction,
   checkLoginState,
+  refreshDomain,
+  resetDomain,
   getCapabilitiesBundle,
 };

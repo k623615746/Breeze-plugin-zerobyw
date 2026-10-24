@@ -1,5 +1,6 @@
 import type { ComicListScene, InfoContract, PluginFunctionItem } from "breeze-plugin-kit";
-import { PLUGIN_ID, PLACEHOLDER_IMAGE_URL, SITE_ORIGIN } from "./common";
+import { PLUGIN_ID, PLACEHOLDER_IMAGE_URL } from "./common";
+import { DEFAULT_ORIGIN } from "./origin";
 
 /** 发布仓库；Breeze 只会扫描 GitHub 上以 Breeze-plugin- 开头的仓库 */
 const GITHUB_OWNER = "k623615746";
@@ -8,7 +9,7 @@ const GITHUB_REPO = "Breeze-plugin-zerobyw";
 /** 自动更新通道：GitHub Release API（客户端仅对此域名套用镜像加速） */
 const UPDATE_URL = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`;
 
-const ICON_URL = `${SITE_ORIGIN}/template/discuzx5/static/logo-zero-x5-home.svg`;
+const ICON_URL = `${DEFAULT_ORIGIN}/template/discuzx5/static/logo-zero-x5-home.svg`;
 
 function buildScene(title: string, core: Record<string, unknown> = {}): ComicListScene {
   return {
@@ -74,11 +75,12 @@ export function buildPluginInfo(): InfoContract {
       "",
       "- 支持关键词搜索、分类筛选、人气/最新排行",
       "- 章节列表取自阅读页目录，完整话数可见",
+      "- 域名失效时自动从官方发布页获取最新域名",
       "- 部分章节需要站点账号登录；在插件设置中填入 Cookie 即可",
       "",
       "> 内容版权归原作者及出版方所有，本插件仅做页面解析，不存储、不分发任何漫画内容。",
     ].join("\n"),
-    version: "1.0.0",
+    version: "1.1.0",
     home: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`,
     updateUrl: UPDATE_URL,
     function: buildFunctions(),

@@ -1,3 +1,4 @@
+import { DEFAULT_ORIGIN, getOrigin, isSiteHost } from "./origin";
 import type {
   ActionItem,
   ComicListItem,
@@ -9,17 +10,12 @@ import type {
 /** 插件唯一标识，务必保持稳定（变更等同于新插件） */
 export const PLUGIN_ID = "b7d1e0c4-3a52-4f8b-9c61-0e2a5f7d8b90";
 
-/** 站点根地址 */
-export const SITE_ORIGIN = "https://www.zerobyw33.com";
-
-/** 图片 CDN 根地址 */
-export const IMAGE_ORIGIN = "https://tupa.zerobyw33.com";
-
 /**
  * 占位图：必须是格式合法且可访问的非空 URL。
  * 宿主不会用它下载图片，只会校验格式，因此这里指向站点自有 logo。
+ * 注意：用内置默认域名而非当前域名——图片地址可能已失效，占位图不该跟着失效。
  */
-export const PLACEHOLDER_IMAGE_URL = `${SITE_ORIGIN}/template/discuzx5/static/logo-zero-x5-home.svg`;
+export const PLACEHOLDER_IMAGE_URL = `${DEFAULT_ORIGIN}/template/discuzx5/static/logo-zero-x5-home.svg`;
 
 export const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -119,17 +115,13 @@ export function cleanLines(input: string | null | undefined): string[] {
 }
 
 /** 站点自有域名统一升级为 https，避免宿主侧混合内容拦截 */
-const SITE_HOSTS = ["zerobyw33.com", "tupa.zerobyw33.com"];
-
 function upgradeToHttps(url: string): string {
   if (!url.startsWith("http://")) {
     return url;
   }
   try {
     const parsed = new URL(url);
-    const host = parsed.hostname.toLowerCase();
-    const isSiteHost = SITE_HOSTS.some((item) => host === item || host.endsWith(`.${item}`));
-    if (isSiteHost) {
+    if (isSiteHost(parsed.hostname)) {
       parsed.protocol = "https:";
       return parsed.toString();
     }
@@ -152,9 +144,9 @@ export function absoluteUrl(raw: string | null | undefined): string {
     return `https:${value}`;
   }
   if (value.startsWith("/")) {
-    return `${SITE_ORIGIN}${value}`;
+    return `${getOrigin()}${value}`;
   }
-  return `${SITE_ORIGIN}/${value}`;
+  return `${getOrigin()}/${value}`;
 }
 
 /** 把任意相对地址解析为绝对 URL（用于 <base> 语义） */
