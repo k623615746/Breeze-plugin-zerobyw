@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zero&#25644;&#36816;&#32593;</title>
+    
+    <!-- Tailwind CSS (static build for this page) -->
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <link rel="stylesheet" href="/pc/pc/assets/css/pc-tailwind.css?20260527" />
+    <script defer src="/static/zero/js/alpinejs.cdn.min.js?20260621"></script>
+    <link rel="stylesheet" href="/pc/pc/assets/css/pc-inline.css?20260621redis2" />
+    <script>
+        (function() {
+            const scriptSrc = '/pc/cnhkzhuanhuan/cnhk-browser.js?20260623b';
+            let loading = null;
+
+            function readLang() {
+                try {
+                    return localStorage.getItem('user_lang') === 'HK' ? 'HK' : 'CN';
+                } catch (e) {
+                    return 'CN';
+                }
+            }
+
+            function writeLang(lang) {
+                try {
+                    localStorage.setItem('user_lang', lang);
+                } catch (e) {}
+                document.cookie = 'user_lang=' + lang + '; path=/; max-age=31536000';
+            }
+
+            function loadConverter(callback) {
+                if (window.PcCnHk) {
+                    if (callback) callback(window.PcCnHk);
+                    return;
+                }
+                if (!loading) {
+                    loading = new Promise(function(resolve, reject) {
+                        const script = document.createElement('script');
+                        script.src = scriptSrc;
+                        script.onload = function() { resolve(window.PcCnHk); };
+                        script.onerror = function() {
+                            loading = null;
+                            reject(new Error('CN/HK converter load failed'));
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
+                loading.then(function(api) {
+                    if (callback) callback(api);
+                }).catch(function(error) {
+                    console.error(error);
+                    document.documentElement.classList.remove('is-translating');
+                });
+            }
+
+            window.pcCnHkGetLang = readLang;
+            window.pcCnHkSetLang = function(newLang) {
+                const lang = newLang === 'HK' ? 'HK' : 'CN';
+                writeLang(lang);
+                if (lang === 'HK') {
+                    loadConverter(function(api) { api.setLang('HK'); });
+                } else {
+                    if (window.PcCnHk) window.PcCnHk.setLang('CN');
+                    location.reload();
+                }
+            };
+            if (readLang() === 'HK') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadConverter(function(api) { api.applySaved(); });
+                });
+            }
+        })();
+    </script>
+</head>
+<!-- 
+    x-data: Initialize Alpine.js state
+    toggleTheme: Toggle logic
+-->
+<body x-data="{ 
+    darkMode: localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+    uploadModalOpen: false,
+    isLoading: false,
+    lang: window.pcCnHkGetLang ? window.pcCnHkGetLang() : 'CN',
+    setLang(newLang) {
+        this.lang = newLang === 'HK' ? 'HK' : 'CN';
+        if (window.pcCnHkSetLang) window.pcCnHkSetLang(this.lang);
+    },
+    toggleTheme() {
+        this.darkMode = !this.darkMode;
+        if (this.darkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('color-theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('color-theme', 'light');
+        }
+    }
+}" class="pc-pc-page bg-gray-50 text-gray-900 dark:bg-darkbg-900 dark:text-gray-200 font-sans antialiased min-h-screen flex flex-col transition-colors duration-300">
+
+    <link rel="stylesheet" type="text/css" href="/data/cache/style_2_common.css?ZaJ" />
+<!--[if IE]><link rel="stylesheet" type="text/css" href="/data/cache/style_2_iefix.css?ZaJ" /><![endif]-->
+<script type="text/javascript">
+var STYLEID = '2', STATICURL = '/static/', IMGDIR = '/static/image/common', VERHASH = 'ZaJ', charset = 'utf-8', discuz_uid = '0', cookiepre = 'W6vj_2132_', cookiedomain = '', cookiepath = '/', showusercard = '1', attackevasive = '0', disallowfloat = 'newthread', creditnotice = '1|威望|,2|金钱|,3|贡献|', defaultstyle = '', REPORTURL = 'aHR0cHM6Ly93d3cuemVyb2J5dzMzLmNvbS9wYy9wYy8/a2V5d29yZD0lRTglQkQlQUMlRTclOTQlOUY=', SITEURL = 'https://www.zerobyw33.com/pc/pc/', JSPATH = '/data/cache/', CSSPATH = '/data/cache/style_', DYNAMICURL = '', DEFAULTAVATAR = './data/avatar/noavatar.svg';
+</script>
+<script src="/data/cache/common.js?ZaJ" type="text/javascript"></script>
+<script src="/static/js/mobile/jquery.min.js?ZaJ" type="text/javascript"></script>
+<script>jQuery.noConflict();</script>
+<link rel="stylesheet" type="text/css" href="/pc/pc/assets/css/pingguo-top.css?20260606avatar32" />
+<div id="append_parent"></div><div id="ajaxwaitid"></div><div id="nv_forum" class="pg_index dz_pg_index dz_tbnvb dz_wide">
+		<div id="dz_btm_layer" class="topbox dz_nav_dismall">
+		<div class="dz_layer_top">
+			<div class="dz_btm_layer dz_nav">
+				<div class="dz_nav_logo">
+					<a href="/" title="zero搬运网" class="dzlogo"><img src="/template/discuzx5/static/logo-zero-x5-home.svg" alt="zero搬运网" class="boardlogo" id="boardlogo" border="0" /></a>
+				</div>
+				<div class="dz_layer_nav" style="--pc-din-nav-item-width:92px;--pc-din-nav-gap:14px;">
+					<ul>
+																																																																														<li class="a" id="mn_N2110" ><a href="/pc/pc/" hidefocus="true"  >在线漫画</a></li>
+																																																																																<li id="mn_N86a0" ><a href="/pc/tiaozhuang/vip.php" hidefocus="true"  >VIP</a></li>
+																																																												<li id="mn_Nb840" ><a href="/forum.php?mod=forumdisplay&fid=10" hidefocus="true"  >求搬运</a></li>
+																																																												<li id="mn_N2909" ><a href="/forum.php?mod=viewthread&tid=6&extra=" hidefocus="true"  >没图</a></li>
+																																																												<li id="mn_forum_2" ><a href="/forum.php" hidefocus="true"  >论坛</a></li>
+																																																												<li id="mn_N07bc" ><a href="/forum.php?mod=viewthread&tid=7&extra=" hidefocus="true"  >客户端</a></li>
+																																	</ul>
+									</div>
+				<div class="dz_layer_dl"><div class="header-right">
+<div class="header-searcher">
+<div class="searcher-wrap">
+<form method="get" autocomplete="off" action="/pc/pc/"><input type="text" name="keyword" placeholder="&#35831;&#36755;&#20837;&#25628;&#32034;&#20869;&#23481;" value="转生" class="search-input"><button type="submit" class="search-icon" value="true"></button></form>
+</div>
+</div><button type="button" @click="toggleTheme()" class="dz-theme-placeholder pc-theme-toggle" title="&#20999;&#25442;&#28145;&#33394;/&#27973;&#33394;&#27169;&#24335;" aria-label="&#20999;&#25442;&#28145;&#33394;/&#27973;&#33394;&#27169;&#24335;"><svg x-show="darkMode" class="pc-theme-icon-when-dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg><svg x-show="!darkMode" class="pc-theme-icon-when-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg></button>
+<div class="header-user-login">
+<div class="login_btn"><a href="/member.php?mod=logging&amp;action=login" onclick="showWindow('login', this.href)">登录</a></div>
+</div>
+</div>
+<script type="text/javascript">
+document.querySelectorAll('.header-user, .header-notice, .header-i18n, .header-client').forEach(function(element) {
+    element.addEventListener('mouseenter', function() {
+        this.classList.add('open');
+    });
+
+    element.addEventListener('mouseleave', function() {
+        this.classList.remove('open');
+    });
+});
+if($("qmenu_loop")){
+var qmenu_timer, qmenu_scroll_l;
+var qmenu_in = 0;
+var qmenu_width = 163;
+var qmenu_loop = $('qmenu_loop');
+var qmenu_all_width = 41 * $('qmenu_loopul').getElementsByTagName("li").length - qmenu_width;
+if(qmenu_all_width < 20){
+$('qmenu_an').style.display = 'none';
+}
+}
+function qmenu_move(qmenu_lr){
+if(qmenu_in == 0 && ((qmenu_lr == 1 && qmenu_loop.scrollLeft < qmenu_all_width) || (qmenu_lr == 0 && qmenu_loop.scrollLeft > 0))){
+qmenu_in = 1;
+qmenu_scroll_l = qmenu_loop.scrollLeft;
+qmenu_timer = setInterval(function(){
+qmenu_scroll(qmenu_lr);
+}, 10);
+}
+}
+function qmenu_scroll(qmenu_lr){
+if((qmenu_lr == 1 && qmenu_loop.scrollLeft >= qmenu_width + qmenu_scroll_l) || (qmenu_lr == 0 && ((qmenu_loop.scrollLeft <= qmenu_scroll_l - qmenu_width) || qmenu_loop.scrollLeft == 0))){
+clearInterval(qmenu_timer);
+qmenu_in = 0;
+}else{
+if(qmenu_lr == 1){
+qmenu_loop.scrollLeft += Math.round((qmenu_width + qmenu_scroll_l - qmenu_loop.scrollLeft) / 15) + 1;
+}else{
+qmenu_loop.scrollLeft -= Math.round((qmenu_width - (qmenu_scroll_l - qmenu_loop.scrollLeft)) / 15) + 1;
+}
+}
+}
+</script>
+</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+	</div>
+	</div>
+
+<link rel="stylesheet" href="/static/zero/css/float-login-fix.css?20260621">
+<script>
+(function() {
+	function pcRootFloatUrl(value) {
+		if(!value || /^(?:[a-z][a-z0-9+\-.]*:|\/\/|\/|#|javascript:|mailto:)/i.test(value)) {
+			return value;
+		}
+		return '/' + value.replace(/^\.\//, '').replace(/^(?:\.\.\/)+/, '');
+	}
+
+	function pcRemoveFloatParam(url, name) {
+		var hashIndex = url.indexOf('#');
+		var hash = hashIndex === -1 ? '' : url.slice(hashIndex);
+		var cleanUrl = hashIndex === -1 ? url : url.slice(0, hashIndex);
+		var queryIndex = cleanUrl.indexOf('?');
+		if(queryIndex === -1) {
+			return url;
+		}
+		var base = cleanUrl.slice(0, queryIndex);
+		var query = cleanUrl.slice(queryIndex + 1).split('&').filter(function(part) {
+			return part.split('=')[0] !== name;
+		}).join('&');
+		return base + (query ? '?' + query : '') + hash;
+	}
+
+	function pcFixFloatLinks(root) {
+		if(!root || !root.querySelectorAll) {
+			return;
+		}
+		root.querySelectorAll('[href],[src],[action]').forEach(function(element) {
+			['href', 'src', 'action'].forEach(function(attr) {
+				var value = element.getAttribute(attr);
+				var rooted = pcRootFloatUrl(value);
+				if(rooted !== value) {
+					element.setAttribute(attr, rooted);
+				}
+			});
+		});
+		root.querySelectorAll('form[name="login"], form[id^="loginform_"]').forEach(function(form) {
+			var action = pcRemoveFloatParam(pcRootFloatUrl(form.getAttribute('action') || ''), 'inajax');
+			form.setAttribute('action', action);
+			form.setAttribute('target', '_self');
+			form.removeAttribute('onsubmit');
+			form.onsubmit = null;
+		});
+	}
+
+	var appendParent = document.getElementById('append_parent');
+	if(!appendParent || !window.MutationObserver) {
+		return;
+	}
+	pcFixFloatLinks(appendParent);
+	new MutationObserver(function(records) {
+		records.forEach(function(record) {
+			Array.prototype.forEach.call(record.addedNodes, function(node) {
+				if(node.nodeType === 1) {
+					pcFixFloatLinks(node);
+				}
+			});
+		});
+	}).observe(appendParent, { childList: true, subtree: true });
+})();
+</script>
+    <!-- Content -->
+    <main class="pc-list-main flex-grow max-w-7xl mx-auto w-full px-4 pt-4 pb-8 space-y-5">
+        
+        <!-- Filters -->
+        <section class="transition-colors">
+            <div class="bg-white dark:bg-white/5 px-6 py-3 rounded-2xl border border-gray-300 dark:border-white/20 shadow-sm flex flex-col gap-1">
+                <!-- Categories (Multi-select) -->
+                <div class="flex items-start gap-4 py-2">
+                    <span class="text-sm font-bold text-gray-400 dark:text-gray-500 w-12 pt-1.5 text-right">分类</span>
+                    <div class="flex flex-wrap gap-2">
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F" 
+                        class="bg-brand-500 text-white shadow-sm 
+                                px-3 py-1 rounded text-sm transition-colors">全部</a>
+                        
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=1" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            卖肉                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=6" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            后宫                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=22" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            冒险                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=23" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            奇幻                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=13" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            搞笑                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=28" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            日常                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=35" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            职业                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=29" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            体育                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=15" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            战斗                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=31" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            爱情                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=34" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            机战                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=40" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            悬疑                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=41" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            美食                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=42" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            百合                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&category_id=43" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            等网源                        </a>
+                                            </div>
+                </div>
+                
+                <div class="h-px bg-gray-100 dark:bg-white/5"></div>
+
+                <!-- Progress -->
+                <div class="flex items-start gap-4 py-2">
+                    <span class="text-sm font-bold text-gray-400 dark:text-gray-500 w-12 pt-1.5 text-right">进度</span>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F" 
+                        class="bg-brand-500 text-white shadow-sm 
+                                px-3 py-1 rounded text-sm transition-colors">全部</a>
+                        
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&jindu=0" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            连载中                        </a>
+                                                <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&jindu=1" 
+                        class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                px-3 py-1 rounded text-sm transition-colors">
+                            已完结                        </a>
+                                            </div>
+                </div>
+
+                <div class="h-px bg-gray-100 dark:bg-white/5"></div>
+
+                <!-- Language (语言) -->
+                <div class="flex items-start justify-between gap-4 py-2">
+                    <div class="flex items-start gap-4">
+                        <span class="text-sm font-bold text-gray-400 dark:text-gray-500 w-12 pt-1.5 text-right">语言</span>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F" 
+                            class="bg-brand-500 text-white shadow-sm 
+                                    px-3 py-1 rounded text-sm transition-colors">全部</a>
+                            
+                                                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&shuxing=%E4%B8%80%E5%8D%8A%E4%B8%AD%E6%96%87%E4%B8%80%E5%8D%8A%E7%94%9F%E8%82%89" 
+                            class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                    px-3 py-1 rounded text-sm transition-colors">
+                                一半中文一半生肉                            </a>
+                                                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&shuxing=%E5%85%A8%E4%B8%AD%E6%96%87" 
+                            class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                    px-3 py-1 rounded text-sm transition-colors">
+                                全中文                            </a>
+                                                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&shuxing=%E5%85%A8%E7%94%9F%E8%82%89" 
+                            class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                    px-3 py-1 rounded text-sm transition-colors">
+                                全生肉                            </a>
+                                                    </div>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span>出版社</span>
+                            <select onchange="window.location.href=this.value"
+                                    class="h-8 min-w-28 rounded border border-gray-200 bg-white px-2 text-sm text-gray-700 shadow-sm outline-none transition-colors hover:bg-gray-50 focus:border-brand-500 dark:border-white/10 dark:bg-darkbg-800 dark:text-gray-300 dark:hover:bg-darkbg-700">
+                                <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F" selected>全部</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;publisher=%E8%A7%92%E5%B7%9D" >角川</option>
+                                                            </select>
+                        </label>
+
+                        <label class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span>年份</span>
+                            <select onchange="window.location.href=this.value"
+                                    class="h-8 min-w-28 rounded border border-gray-200 bg-white px-2 text-sm text-gray-700 shadow-sm outline-none transition-colors hover:bg-gray-50 focus:border-brand-500 dark:border-white/10 dark:bg-darkbg-800 dark:text-gray-300 dark:hover:bg-darkbg-700">
+                                <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F" selected>全部</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2026" >2026</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2025" >2025</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2024" >2024</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2023" >2023</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2022" >2022</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2021" >2021</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2020" >2020</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2019" >2019</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2018" >2018</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2017" >2017</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2016" >2016</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2015" >2015</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2014" >2014</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2013" >2013</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2012" >2012</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2011" >2011</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2010" >2010</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2009" >2009</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2008" >2008</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2007" >2007</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2006" >2006</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2005" >2005</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2004" >2004</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2003" >2003</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2002" >2002</option>
+                                                                    <option value="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&amp;year=2001" >2001</option>
+                                                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="h-px bg-gray-100 dark:bg-white/5"></div>
+
+                <!-- Sort (排序) -->
+                <div class="flex items-center justify-between gap-4 py-2">
+                    <div class="flex items-start gap-4">
+                        <span class="text-sm font-bold text-gray-400 dark:text-gray-500 w-12 pt-1.5 text-right">排序</span>
+                        <div class="flex flex-wrap gap-2">
+                                                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&order=addtime&dir=asc" 
+                            class="bg-brand-500 text-white shadow-sm 
+                                    px-3 py-1 rounded text-sm transition-colors flex items-center gap-1">
+                                <span>上架</span>
+                                                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                                                                                </a>
+                                                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&order=views&dir=desc" 
+                            class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                    px-3 py-1 rounded text-sm transition-colors flex items-center gap-1">
+                                <span>人气</span>
+                                                            </a>
+                                                        <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&order=favores&dir=desc" 
+                            class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:bg-darkbg-800 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 
+                                    px-3 py-1 rounded text-sm transition-colors flex items-center gap-1">
+                                <span>收藏</span>
+                                                            </a>
+                                                    </div>
+                    </div>
+
+                    <!-- 个人漫屋快捷链接 -->
+                    <div class="flex items-center gap-5 pr-2">
+                        <a href="/pc/pc/" class="bg-white text-gray-600 hover:bg-gray-100 border border-gray-200 dark:text-gray-400 dark:border-white/5 dark:hover:text-white dark:hover:bg-darkbg-700 px-3 py-1 rounded text-sm transition-colors flex items-center shadow-sm">
+                            重新筛选
+                        </a>
+                        <span class="text-gray-300 dark:text-white/10 text-xs">|</span>
+                        <a href="/pc/pcmy/?tab=fav" class="flex items-center gap-1.5 text-[15px] font-bold text-gray-400 hover:text-brand-500 transition-colors dark:text-gray-300 dark:hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                            我的收藏
+                        </a>
+                        <span class="text-gray-300 dark:text-white/10 text-xs">|</span>
+                        <a href="/pc/pcmy/?tab=lishi" class="flex items-center gap-1.5 text-[15px] font-bold text-gray-400 hover:text-brand-500 transition-colors dark:text-gray-300 dark:hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            阅读记录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- List -->
+        <div>
+                            <div class="pc-manga-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-8">
+                                        <a href="/pc/details/?kuid=23140" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/p5n5w5e6nda/46-50/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="二度转生的少年作为s级冒险者想过平稳生活【1-56话 6-56是生肉】【二度転生した少年はＳランク冒険者として平穏に過ごす】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">二度转生的少年作为s级冒险者想过平稳生活</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-56话 6-56是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=23119" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/f7n7d7p1ad/1/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="反派千金转生中年大叔【1-41话 22-41是生肉】【おじ転生～悪役令嬢の加齢なる生活】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">反派千金转生中年大叔</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-41话 22-41是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=23080" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/z3u3a4h4ds/3/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="转生领主的麻烦性技能【1-3卷 全是gpt6.1 sol max 快速 渣翻】【転生領主の迷惑性技 エロスの概念がない世界で現代の知識を使ってみたら】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">转生领主的麻烦性技能</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-3卷 全是gpt6.1 sol max 快速 渣翻 &#24050;&#23436;&#32467;</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=23064" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/g1a1i1d4nd/38-41/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="贵族转生【1-41话 35-41是生肉】【貴族転生 恵まれた生まれから最強の力を得る】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">贵族转生</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-41话 35-41是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=23062" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/z6u6a6nd5hw/1/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="转生的原奴隶，驱使绝技《千变万化》建立最强后宫【1-16话 全是中文】【転生した元奴隷、チートスキル『千変万化』で最強ハーレムを作る】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">转生的原奴隶，驱使绝技《千变万化》建立最强后宫</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-16话 全是中文</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=23058" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/h0d0a5i5hdd/80-87/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="花织同学转生后还是想干架【1-87话 28-87是生肉】【花織さんは転生しても喧嘩がしたい 】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">花织同学转生后还是想干架</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-87话 28-87是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22969" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/w7z7i7hd5iad/23/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="无职转生【1-122话 全是中文】【無職転生 異世界行ったら本気だす／無職轉生～到了異世界就拿出真本事】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">无职转生</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-122话 全是中文</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22919" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/i1d1ia7n7d/77-88/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="幽哉游哉地下城攻略记老子的异世界转生冒险传【1-88话 17-88是生肉】【ふかふかダンジョン攻略記 俺の異世界転生冒険譚】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">幽哉游哉地下城攻略记老子的异世界转生冒险传</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-88话 17-88是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22916" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/z6a6n6s4hen/34-36/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="转生后是初期死亡中头目 靠着将女主角眷属化而幸存【1-36话 34-36是生肉】【転生したら序盤で死ぬ中ボスだった ヒロイン眷属化で生き残る／轉生為遊戲初期就死掉的中頭目 靠眷屬化技能延續生命】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">转生后是初期死亡中头目 靠着将女主角眷属化而幸存</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-36话 34-36是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22914" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/l2n2d2yu9a/78-84/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="魔王建造地下城转生到异世界建造人外娘的专属乐园吧【1-92话 66-92是生肉】【魔王になったので、ダンジョン造って人外娘とほのぼのする】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">魔王建造地下城转生到异世界建造人外娘的专属乐园吧</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-92话 66-92是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22876" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/z1i1b1d6ind/61-64/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="在边境生活的魔王转生后成为了最强魔术师【1-66话 11-66是生肉】【辺境ぐらしの魔王、転生して最強の魔術師になる／在邊境生活的魔王轉生後成為了最強魔術師】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">在边境生活的魔王转生后成为了最强魔术师</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-66话 11-66是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22860" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/su4a4r4n5and/1/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="关于虽然转生成为漫画中的渣男却毫无干劲的我【1-23话 全是中文】【寝取られ漫画のクズ男に転生したはずがヒロインが寄ってくる件／本該轉生成漫畫中橫刀奪愛的渣男 女主角卻投懷送抱】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">关于虽然转生成为漫画中的渣男却毫无干劲的我</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-23话 全是中文</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22828" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/zh1n1d3h3w/1/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="转生成黄油基友角色，用游戏知识自由生活【1-13 全是中文 第3卷是文本替换】【マジカル★エクスプローラー エロゲの友人キャラに転生したけ／魔法 探險家　轉生為成人遊戲萬年男二又怎樣，我要活用遊戲知識自由生活】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">转生成黄油基友角色，用游戏知识自由生活</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-13 全是中文 第3卷是文本替换</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22794" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/y4w4i7e7jda/10/003.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="因为转生成了命中注定要死的恶役小姐的哥哥，所以想要通过亲手抚养妹妹以改变未来【1-16话 11-16是生肉】【死ぬ運命にある悪役令嬢の兄に転生したので、妹を育てて未来を変えたいと思います】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">因为转生成了命中注定要死的恶役小姐的哥哥，所以想要通过亲手抚养妹妹以改变未来</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-16话 11-16是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22743" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/y4a4n8dn8d/14-19/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="原暗杀者转生成为贵族千金【1-37话 10-37是生肉】【元暗殺者、転生して貴族の令嬢になりました】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">原暗杀者转生成为贵族千金</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-37话 10-37是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22741" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/li4n4di4n3d/6/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="关于我转生变成史莱姆这档事 美食传 佩可和利姆路的料理笔记【1-35话 5-35是生肉】【 転生したらスライムだった件 美食伝／關於我轉生變成史萊姆這檔事 美食傳 佩可和利姆路的料理筆記】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">关于我转生变成史莱姆这档事 美食传 佩可和利姆路的料理笔记</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-35话 5-35是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22732" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/s4d4j8id8n/9-11/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="受尽虐待的流放王女是转生的传奇魔女【1-17话 9-17是生肉】【虐げられた追放王女は、転生した伝説の魔女でした】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">受尽虐待的流放王女是转生的传奇魔女</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-17话 9-17是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22692" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/s3n3s3ha9d/5/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="弑神魔王转生成为最弱种族成就史上最强【1-5卷 第5卷是生肉】【神殺しの魔王／弒神魔王、轉生最弱種族成為史上最強】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">弑神魔王转生成为最弱种族成就史上最强</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-5卷 第5卷是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22688" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/hz1a1n1h4dd/8/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="转生过了40年，大叔也想恋爱了【1-41话 16-41是生肉】【転生してから40年。そろそろ、おじさんも恋がしたい。 二度目の人生はハーレムルート／轉生之後40年，中年大叔也差不多想談戀愛了。～第二次的人生是後宮路線】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">转生过了40年，大叔也想恋爱了</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-41话 16-41是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22609" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/c1a1n1en9da/86-90/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="村人转生 最强的悠闲生活【1-91话 7-91是生肉】【村人転生 最強のスローライフ】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">村人转生 最强的悠闲生活</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-91话 7-91是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22567" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/d4n4w4i6nd/36-40/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="杀人狂转生现代单亲妈妈【1-40话 16-40是生肉】【殺人鬼×転生～殺人鬼の転生先はシンママでした】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">杀人狂转生现代单亲妈妈</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-40话 16-40是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22555" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/d3h3u3sd0na/30-32/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="大叔转生成天才演员【1-50话 30-50是生肉】【おっさん、転生して天才役者になる】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">大叔转生成天才演员</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-50话 30-50是生肉</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22546" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/z9qi9dn1a8d/13/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="最强黑骑士转生战斗女仆【1-84话 43-84是生肉 1-7卷是文本替换】【最強の黒騎士、戦闘メイドに転職しました】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">最强黑骑士转生战斗女仆</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-84话 43-84是生肉 1-7卷是文本替换</p>
+                        </div>
+                    </a>
+                                        <a href="/pc/details/?kuid=22542" target="_blank" class="group block h-full rounded-xl overflow-hidden bg-white dark:bg-darkbg-800 shadow-md ring-1 ring-black/5 dark:ring-white/5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand-500/40">
+                        <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-darkbg-800 border-b border-gray-100 dark:border-white/5">
+                            <!-- Placeholder Icon (Optional) -->
+                            <div class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <img loading="lazy" decoding="async" data-pc-cover-preload="1" src="http://tupa.zerobyw33.com/manhua/m4i4ni5d5na/50-54/001.jpg" 
+                                 class="absolute inset-0 w-full h-full object-contain transition duration-500 group-hover:scale-105 [will-change:transform]" 
+                                 alt="米利摩斯战纪 少主转生战机【1-54话 50-54是生肉】【ミリモス サーガー末弟王子の転生戦記 】">
+                        </div>
+                        <div class="px-3 py-2.5">
+                            <h3 class="manga-card-title text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-brand-500 transition-colors">米利摩斯战纪 少主转生战机</h3>
+                            <p class="manga-card-meta text-xs text-gray-500 dark:text-gray-500 mt-1">1-54话 50-54是生肉</p>
+                        </div>
+                    </a>
+                                    </div>
+            
+            <script>
+            (function () {
+                var covers = Array.prototype.slice.call(document.querySelectorAll('.pc-manga-grid img[data-pc-cover-preload="1"]'));
+                if (!covers.length) {
+                    return;
+                }
+
+                function isSettled(img) {
+                    return img.complete;
+                }
+
+                function waitForImage(img, done) {
+                    if (isSettled(img)) {
+                        done();
+                        return;
+                    }
+                    var finished = false;
+                    var finish = function () {
+                        if (finished) {
+                            return;
+                        }
+                        finished = true;
+                        img.removeEventListener('load', finish);
+                        img.removeEventListener('error', finish);
+                        done();
+                    };
+                    img.addEventListener('load', finish, { once: true });
+                    img.addEventListener('error', finish, { once: true });
+                }
+
+                function waitForInitialCovers(done) {
+                    var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+                    var preloadLine = viewportHeight + 160;
+                    var initialCovers = covers.filter(function (img) {
+                        var rect = img.getBoundingClientRect();
+                        return rect.top < preloadLine && rect.bottom > -80;
+                    });
+
+                    if (!initialCovers.length) {
+                        done();
+                        return;
+                    }
+
+                    var left = initialCovers.length;
+                    var completed = false;
+                    var complete = function () {
+                        if (completed) {
+                            return;
+                        }
+                        completed = true;
+                        window.clearTimeout(timer);
+                        done();
+                    };
+                    var timer = window.setTimeout(complete, 5000);
+                    initialCovers.forEach(function (img) {
+                        waitForImage(img, function () {
+                            left -= 1;
+                            if (left <= 0) {
+                                complete();
+                            }
+                        });
+                    });
+                }
+
+                function preloadRemainingCovers() {
+                    covers.forEach(function (img) {
+                        if (isSettled(img)) {
+                            return;
+                        }
+                        img.loading = 'eager';
+                        var url = img.currentSrc || img.src;
+                        if (!url) {
+                            return;
+                        }
+                        var preload = new Image();
+                        preload.decoding = 'async';
+                        preload.src = url;
+                    });
+                }
+
+                var started = false;
+                function startAfterInitialCovers() {
+                    if (started) {
+                        return;
+                    }
+                    started = true;
+                    waitForInitialCovers(preloadRemainingCovers);
+                }
+
+                if (document.readyState === 'complete') {
+                    startAfterInitialCovers();
+                } else {
+                    window.addEventListener('load', startAfterInitialCovers, { once: true });
+                }
+            })();
+            </script>
+            
+            <!-- Pagination -->
+                        <div class="mt-12 relative flex items-center justify-center py-4">
+                <!-- Center: Main Pagination -->
+                <div class="flex items-center gap-2">
+                    <!-- 上一页 -->
+                                        
+                    <!-- 页码列表 -->
+                    <div class="hidden sm:flex items-center gap-1">
+                                                    <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=1" 
+                               class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all bg-brand-500 text-white shadow-md">
+                                1                            </a>
+                                                    <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=2" 
+                               class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10">
+                                2                            </a>
+                                                    <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=3" 
+                               class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10">
+                                3                            </a>
+                                                    <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=4" 
+                               class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10">
+                                4                            </a>
+                                                    <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=5" 
+                               class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10">
+                                5                            </a>
+                                            </div>
+
+                    <!-- 下一页 -->
+                                            <a href="/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=2" class="px-4 py-2 bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-brand-500 hover:text-white transition-all shadow-sm">下一页</a>
+                                    </div>
+
+                <!-- Far Right: Jump Tool -->
+                <div class="hidden lg:flex absolute right-0 items-center gap-2">
+                    <span class="text-xs text-gray-400">跳至</span>
+                    <input type="number" id="jumpPage" min="1" max="5" value="1"
+                           onkeydown="if(event.keyCode==13) { let p = this.value; if(p >= 1 && p <= 5) location.href = '/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=REPLACE_PAGE'.replace('REPLACE_PAGE', p); }"
+                           class="w-12 h-8 text-center text-sm bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded focus:border-brand-500 focus:outline-none">
+                    <button onclick="let p = document.getElementById('jumpPage').value; if(p >= 1 && p <= 5) location.href = '/pc/pc/?keyword=%E8%BD%AC%E7%94%9F&page=REPLACE_PAGE'.replace('REPLACE_PAGE', p);" 
+                            class="h-8 px-3 bg-gray-100 dark:bg-white/10 hover:bg-brand-500 hover:text-white rounded text-xs transition-all">
+                        确定
+                    </button>
+                </div>
+            </div>
+                    </div>
+        
+    </main>
+
+        <footer class="border-t border-gray-200 dark:border-white/10 bg-white dark:bg-darkbg-900 mt-auto py-8 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-sm font-bold">
+            <!-- Left Side: Language Switcher -->
+            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                <button @click="open = !open" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-sm">
+                    <span class="text-[10px] font-bold text-gray-400" x-text="lang === 'CN' ? 'CN' : 'HK'">CN</span>
+                    <span x-text="lang === 'CN' ? '简体中文 (CN)' : '繁體中文 (HK/TW)'">简体中文 (CN)</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Dropdown Menu (Opens Upwards) -->
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     style="display: none;"
+                     class="absolute bottom-full mb-2 left-0 w-64 bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1 z-[60]">
+                    
+                    <!-- Item: CN -->
+                    <button @click="setLang('CN'); open = false" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-gray-400">CN</span>
+                            <span class="text-sm" :class="lang === 'CN' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'">简体中文 (CN)</span>
+                        </div>
+                        <svg x-show="lang === 'CN'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <!-- Item: HK -->
+                    <button @click="setLang('HK'); open = false" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left border-t border-gray-50 dark:border-white/5">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-gray-400">HK</span>
+                            <span class="text-sm" :class="lang === 'HK' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'">繁體中文 (HK/TW)</span>
+                        </div>
+                        <svg x-show="lang === 'HK'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side: Links and Clock -->
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <div class="flex items-center gap-6 text-gray-500 dark:text-gray-200">
+                    <a href="index.php" class="text-gray-600 dark:text-gray-200 hover:text-brand-500 dark:hover:text-white transition-colors">首页</a>
+                    <span class="text-gray-300 dark:text-gray-200">|</span>
+                    <a href="/forum.php" class="text-gray-600 dark:text-gray-200 hover:text-brand-500 dark:hover:text-white transition-colors">社区</a>
+                </div>
+                                <span class="text-gray-400 dark:text-gray-200">共 115 部</span>
+                                <span class="hidden md:block text-gray-300 dark:text-gray-200">|</span>
+                <div class="text-gray-400 dark:text-gray-200 font-mono" id="footerClock"></div>
+            </div>
+        </div>
+    </footer>
+
+    
+    <!-- Result Modal (PHP Generated) -->
+    
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('zh-CN', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false 
+            });
+            const footerClock = document.getElementById('footerClock');
+            if (footerClock) {
+                footerClock.textContent = timeString;
+            }
+        }
+        setInterval(updateClock, 60000);
+        updateClock(); // 立即执行一次
+    </script>
+
+</body>
+</html>

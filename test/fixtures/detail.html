@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二度转生的少年作为s级冒险者想过平稳生活【1-56话 6-56是生肉】【二度転生した少年はＳランク冒険者として平穏に過ごす】 - zero&#25644;&#36816;&#32593;</title>
+    
+    <link rel="stylesheet" href="/pc/details/assets/css/details-tailwind.css?20260527" />
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <script defer src="/static/zero/js/alpinejs.cdn.min.js?20260621"></script>
+    <link rel="stylesheet" href="/pc/details/assets/css/details-inline.css?20260606noticecolor" />
+    <script>
+        (function() {
+            const scriptSrc = '/pc/cnhkzhuanhuan/cnhk-browser.js?20260623b';
+            let loading = null;
+
+            function readLang() {
+                try {
+                    return localStorage.getItem('user_lang') === 'HK' ? 'HK' : 'CN';
+                } catch (e) {
+                    return 'CN';
+                }
+            }
+
+            function writeLang(lang) {
+                try {
+                    localStorage.setItem('user_lang', lang);
+                } catch (e) {}
+                document.cookie = 'user_lang=' + lang + '; path=/; max-age=31536000';
+            }
+
+            function loadConverter(callback) {
+                if (window.PcCnHk) {
+                    if (callback) callback(window.PcCnHk);
+                    return;
+                }
+                if (!loading) {
+                    loading = new Promise(function(resolve, reject) {
+                        const script = document.createElement('script');
+                        script.src = scriptSrc;
+                        script.onload = function() { resolve(window.PcCnHk); };
+                        script.onerror = function() {
+                            loading = null;
+                            reject(new Error('CN/HK converter load failed'));
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
+                loading.then(function(api) {
+                    if (callback) callback(api);
+                }).catch(function(error) {
+                    console.error(error);
+                    document.documentElement.classList.remove('is-translating');
+                });
+            }
+
+            window.pcCnHkGetLang = readLang;
+            window.pcCnHkSetLang = function(newLang) {
+                const lang = newLang === 'HK' ? 'HK' : 'CN';
+                writeLang(lang);
+                if (lang === 'HK') {
+                    loadConverter(function(api) { api.setLang('HK'); });
+                } else {
+                    if (window.PcCnHk) window.PcCnHk.setLang('CN');
+                    location.reload();
+                }
+            };
+            if (readLang() === 'HK') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadConverter(function(api) { api.applySaved(); });
+                });
+            }
+        })();
+    </script>
+</head>
+<!-- 
+    x-data: Initialize Alpine.js state
+    toggleTheme: Toggle logic
+-->
+<body x-data="{ 
+    darkMode: localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+    lockModal: { open: false, type: '', title: '', msg: '', btnText: '', url: '' },
+    uploadModalOpen: false,
+    isLoading: false,
+    lang: window.pcCnHkGetLang ? window.pcCnHkGetLang() : 'CN',
+    setLang(newLang) {
+        this.lang = newLang === 'HK' ? 'HK' : 'CN';
+        if (window.pcCnHkSetLang) window.pcCnHkSetLang(this.lang);
+    },
+    toggleTheme() {
+        this.darkMode = !this.darkMode;
+        if (this.darkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('color-theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('color-theme', 'light');
+        }
+    }
+}" class="pc-details-page bg-gray-50 text-gray-900 dark:bg-darkbg-900 dark:text-gray-200 font-sans antialiased min-h-screen flex flex-col transition-colors duration-300">
+
+    <link rel="stylesheet" type="text/css" href="/data/cache/style_2_common.css?ZaJ" />
+<!--[if IE]><link rel="stylesheet" type="text/css" href="/data/cache/style_2_iefix.css?ZaJ" /><![endif]-->
+<script type="text/javascript">
+var STYLEID = '2', STATICURL = '/static/', IMGDIR = '/static/image/common', VERHASH = 'ZaJ', charset = 'utf-8', discuz_uid = '0', cookiepre = 'W6vj_2132_', cookiedomain = '', cookiepath = '/', showusercard = '1', attackevasive = '0', disallowfloat = 'newthread', creditnotice = '1|威望|,2|金钱|,3|贡献|', defaultstyle = '', REPORTURL = 'aHR0cHM6Ly93d3cuemVyb2J5dzMzLmNvbS9wYy9kZXRhaWxzLz9rdWlkPTIzMTQw', SITEURL = 'https://www.zerobyw33.com/pc/details/', JSPATH = '/data/cache/', CSSPATH = '/data/cache/style_', DYNAMICURL = '', DEFAULTAVATAR = './data/avatar/noavatar.svg';
+</script>
+<script src="/data/cache/common.js?ZaJ" type="text/javascript"></script>
+<script src="/static/js/mobile/jquery.min.js?ZaJ" type="text/javascript"></script>
+<script>jQuery.noConflict();</script>
+<link rel="stylesheet" type="text/css" href="/pc/details/assets/css/pingguo-top.css?20260606icons" />
+<div id="append_parent"></div><div id="ajaxwaitid"></div><div id="nv_forum" class="pg_index dz_pg_index dz_tbnvb dz_wide">
+		<div id="dz_btm_layer" class="topbox dz_nav_dismall">
+		<div class="dz_layer_top">
+			<div class="dz_btm_layer dz_nav">
+				<div class="dz_nav_logo">
+					<a href="/" title="zero搬运网" class="dzlogo"><img src="/template/discuzx5/static/logo-zero-x5-home.svg" alt="zero搬运网" class="boardlogo" id="boardlogo" border="0" /></a>
+				</div>
+				<div class="dz_layer_nav" style="--pc-din-nav-item-width:92px;--pc-din-nav-gap:14px;">
+					<ul>
+																																																																														<li class="a" id="mn_N2110" ><a href="/pc/pc/" hidefocus="true"  >在线漫画</a></li>
+																																																																																<li id="mn_N86a0" ><a href="/pc/tiaozhuang/vip.php" hidefocus="true"  >VIP</a></li>
+																																																												<li id="mn_Nb840" ><a href="/forum.php?mod=forumdisplay&fid=10" hidefocus="true"  >求搬运</a></li>
+																																																												<li id="mn_N2909" ><a href="/forum.php?mod=viewthread&tid=6&extra=" hidefocus="true"  >没图</a></li>
+																																																												<li id="mn_forum_2" ><a href="/forum.php" hidefocus="true"  >论坛</a></li>
+																																																												<li id="mn_N07bc" ><a href="/forum.php?mod=viewthread&tid=7&extra=" hidefocus="true"  >客户端</a></li>
+																																	</ul>
+									</div>
+				<div class="dz_layer_dl"><div class="header-right">
+<div class="header-searcher">
+<div class="searcher-wrap">
+<form method="get" autocomplete="off" action="/pc/pc/"><input type="text" name="keyword" placeholder="&#35831;&#36755;&#20837;&#25628;&#32034;&#20869;&#23481;" value="" class="search-input"><button type="submit" class="search-icon" value="true"></button></form>
+</div>
+</div><button type="button" @click="toggleTheme()" class="dz-theme-placeholder pc-theme-toggle" title="&#20999;&#25442;&#28145;&#33394;/&#27973;&#33394;&#27169;&#24335;" aria-label="&#20999;&#25442;&#28145;&#33394;/&#27973;&#33394;&#27169;&#24335;"><svg x-show="darkMode" class="pc-theme-icon-when-dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg><svg x-show="!darkMode" class="pc-theme-icon-when-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg></button>
+<div class="header-user-login">
+<div class="login_btn"><a href="/member.php?mod=logging&amp;action=login" onclick="showWindow('login', this.href)">登录</a></div>
+</div>
+</div>
+<script type="text/javascript">
+document.querySelectorAll('.header-user, .header-notice, .header-i18n, .header-client').forEach(function(element) {
+    element.addEventListener('mouseenter', function() {
+        this.classList.add('open');
+    });
+
+    element.addEventListener('mouseleave', function() {
+        this.classList.remove('open');
+    });
+});
+if($("qmenu_loop")){
+var qmenu_timer, qmenu_scroll_l;
+var qmenu_in = 0;
+var qmenu_width = 163;
+var qmenu_loop = $('qmenu_loop');
+var qmenu_all_width = 41 * $('qmenu_loopul').getElementsByTagName("li").length - qmenu_width;
+if(qmenu_all_width < 20){
+$('qmenu_an').style.display = 'none';
+}
+}
+function qmenu_move(qmenu_lr){
+if(qmenu_in == 0 && ((qmenu_lr == 1 && qmenu_loop.scrollLeft < qmenu_all_width) || (qmenu_lr == 0 && qmenu_loop.scrollLeft > 0))){
+qmenu_in = 1;
+qmenu_scroll_l = qmenu_loop.scrollLeft;
+qmenu_timer = setInterval(function(){
+qmenu_scroll(qmenu_lr);
+}, 10);
+}
+}
+function qmenu_scroll(qmenu_lr){
+if((qmenu_lr == 1 && qmenu_loop.scrollLeft >= qmenu_width + qmenu_scroll_l) || (qmenu_lr == 0 && ((qmenu_loop.scrollLeft <= qmenu_scroll_l - qmenu_width) || qmenu_loop.scrollLeft == 0))){
+clearInterval(qmenu_timer);
+qmenu_in = 0;
+}else{
+if(qmenu_lr == 1){
+qmenu_loop.scrollLeft += Math.round((qmenu_width + qmenu_scroll_l - qmenu_loop.scrollLeft) / 15) + 1;
+}else{
+qmenu_loop.scrollLeft -= Math.round((qmenu_width - (qmenu_scroll_l - qmenu_loop.scrollLeft)) / 15) + 1;
+}
+}
+}
+</script>
+</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+	</div>
+	</div>
+
+<link rel="stylesheet" href="/static/zero/css/float-login-fix.css?20260621">
+<script>
+(function() {
+	function pcRootFloatUrl(value) {
+		if(!value || /^(?:[a-z][a-z0-9+\-.]*:|\/\/|\/|#|javascript:|mailto:)/i.test(value)) {
+			return value;
+		}
+		return '/' + value.replace(/^\.\//, '').replace(/^(?:\.\.\/)+/, '');
+	}
+
+	function pcRemoveFloatParam(url, name) {
+		var hashIndex = url.indexOf('#');
+		var hash = hashIndex === -1 ? '' : url.slice(hashIndex);
+		var cleanUrl = hashIndex === -1 ? url : url.slice(0, hashIndex);
+		var queryIndex = cleanUrl.indexOf('?');
+		if(queryIndex === -1) {
+			return url;
+		}
+		var base = cleanUrl.slice(0, queryIndex);
+		var query = cleanUrl.slice(queryIndex + 1).split('&').filter(function(part) {
+			return part.split('=')[0] !== name;
+		}).join('&');
+		return base + (query ? '?' + query : '') + hash;
+	}
+
+	function pcFixFloatLinks(root) {
+		if(!root || !root.querySelectorAll) {
+			return;
+		}
+		root.querySelectorAll('[href],[src],[action]').forEach(function(element) {
+			['href', 'src', 'action'].forEach(function(attr) {
+				var value = element.getAttribute(attr);
+				var rooted = pcRootFloatUrl(value);
+				if(rooted !== value) {
+					element.setAttribute(attr, rooted);
+				}
+			});
+		});
+		root.querySelectorAll('form[name="login"], form[id^="loginform_"]').forEach(function(form) {
+			var action = pcRemoveFloatParam(pcRootFloatUrl(form.getAttribute('action') || ''), 'inajax');
+			form.setAttribute('action', action);
+			form.setAttribute('target', '_self');
+			form.removeAttribute('onsubmit');
+			form.onsubmit = null;
+		});
+	}
+
+	var appendParent = document.getElementById('append_parent');
+	if(!appendParent || !window.MutationObserver) {
+		return;
+	}
+	pcFixFloatLinks(appendParent);
+	new MutationObserver(function(records) {
+		records.forEach(function(record) {
+			Array.prototype.forEach.call(record.addedNodes, function(node) {
+				if(node.nodeType === 1) {
+					pcFixFloatLinks(node);
+				}
+			});
+		});
+	}).observe(appendParent, { childList: true, subtree: true });
+})();
+</script>
+    <main class="pc-manga-page max-w-7xl mx-auto w-full px-4 py-10 space-y-8 relative"
+          x-data="{
+              readerMode: 'default',
+              readerMenuOpen: false,
+              init() {
+                  this.readerMode = this.readReaderMode();
+              },
+              readReaderMode() {
+                  let mode = '';
+                  try {
+                      mode = window.localStorage ? window.localStorage.getItem('pc_details_reader_mode') : '';
+                  } catch (error) {}
+                  if (!mode) {
+                      try {
+                          const match = document.cookie.match(/(?:^|; )pc_details_reader_mode=([^;]*)/);
+                          mode = match ? decodeURIComponent(match[1]) : '';
+                      } catch (error) {}
+                  }
+                  return mode === 'comicread' ? 'comicread' : 'default';
+              },
+              saveReaderMode(mode) {
+                  try {
+                      if (window.localStorage) {
+                          window.localStorage.setItem('pc_details_reader_mode', mode);
+                      }
+                  } catch (error) {}
+                  try {
+                      document.cookie = 'pc_details_reader_mode=' + encodeURIComponent(mode) + '; path=/pc/details; max-age=31536000; SameSite=Lax';
+                  } catch (error) {}
+              },
+              readerUrl(zjid) {
+                  return (this.readerMode === 'comicread' ? '/pc/ComicRead/index.php?zjid=' : '/pc/view/index.php?zjid=') + zjid;
+              },
+              selectReaderMode(mode) {
+                  this.readerMode = mode === 'comicread' ? 'comicread' : 'default';
+                  this.saveReaderMode(this.readerMode);
+                  this.readerMenuOpen = false;
+              }
+          }">
+        <div class="flex flex-col lg:flex-row gap-12">
+            <!-- 封面图 -->
+            <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-200 dark:bg-darkbg-800">
+                    <img src="http://tupa.zerobyw33.com/manhua/p5n5w5e6nda/46-50/001.jpg" class="absolute inset-0 w-full h-full object-contain" alt="二度转生的少年作为s级冒险者想过平稳生活【1-56话 6-56是生肉】【二度転生した少年はＳランク冒険者として平穏に過ごす】">
+                </div>
+            </div>
+
+            <!-- 信息流 -->
+            <div class="flex-grow space-y-6">
+                <div class="flex items-start justify-between gap-4">
+                    <h1 class="text-2xl font-medium text-gray-800 dark:text-white leading-snug">
+                        二度转生的少年作为s级冒险者想过平稳生活<br>【1-56话 6-56是生肉】<br>【二度転生した少年はＳランク冒険者として平穏に過ごす】                    </h1>
+                                    </div>
+                <div class="flex flex-wrap items-center gap-2 text-sm">
+                                            <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md font-medium">作者: 十一屋翠×イケシタ</span>
+                                                                <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md">冒险</span>
+                                            <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md">奇幻</span>
+                                                                <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md">一半中文一半生肉</span>
+                                        <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md">连载中</span>
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md">收藏: <span id="favCount">10</span></span>
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 rounded-md">人气: <span>215</span></span>
+                                                        </div>
+                <div x-data="{ expanded: false, showButton: false }" 
+                     x-init="$nextTick(() => { showButton = $refs.summaryText.scrollHeight > $refs.summaryText.clientHeight })">
+                    <p x-ref="summaryText" class="text-gray-700 dark:text-gray-300 leading-relaxed" 
+                       :class="expanded ? '' : 'line-clamp-3'">
+                        “贤者”和“英雄”...带着两个前世记忆转生的少年·雷克斯。 从前世的记忆中，掌握了引人注目技能的雷克斯， 我发誓第三次人生要当作“冒险者”而朴素地生活。                    </p>
+                    <div class="flex justify-end" x-show="showButton" style="display: none;">
+                        <button @click="expanded = !expanded" 
+                                class="mt-2 text-sm text-gray-900 dark:text-gray-100 hover:text-brand-500 transition-all flex items-center gap-1 focus:outline-none">
+                            <span x-text="expanded ? '收起详情' : '展开详情'"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300" :class="expanded ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="manga-action-row flex flex-wrap items-center gap-3 pt-4" x-data="{ showPass: false }">
+                                            <a href="/pc/view/index.php?zjid=715941" :href="readerUrl(715941)" class="px-8 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold transition-all active:scale-95">阅读</a>
+                                        <!-- 移动到此处的下载按钮 (改为白底蓝字) -->
+                    <button onclick="window.app.goToNewDownload()" class="px-8 py-2.5 bg-white dark:bg-white/5 text-brand-500 border border-brand-500 rounded-xl font-bold transition-all active:scale-95 flex items-center gap-2">
+                        <span>下载</span>
+                    </button>
+                    <button id="favBtn" onclick="app.toggleFav()" class="px-8 py-2.5 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-xl font-bold flex items-center gap-2">
+                        <svg id="favIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                        <span id="favText">收藏</span>
+                    </button>
+                    <button onclick="app.postDashang()" class="px-8 py-2.5 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-xl font-bold">打赏</button>
+                                            <div class="relative" @click.away="readerMenuOpen = false">
+                            <button type="button" @click="readerMenuOpen = !readerMenuOpen" style="min-width: 180px;" class="flex items-center justify-between gap-3 px-8 py-2.5 bg-white dark:bg-white/5 text-base text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-xl font-bold transition-all active:scale-95">
+                                <span style="display: grid;">
+                                    <span style="grid-area: 1 / 1;" x-text="readerMode === 'comicread' ? 'ComicRead 阅读器' : '默认阅读器'">默认阅读器</span>
+                                    <span style="grid-area: 1 / 1; visibility: hidden;" aria-hidden="true">ComicRead 阅读器</span>
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="readerMenuOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <div x-show="readerMenuOpen"
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 style="display: none; top: 100%;"
+                                 class="absolute mt-2 left-0 w-64 bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1 z-[60]">
+                                <button type="button" @click="selectReaderMode('default')" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left">
+                                    <span class="text-sm" :class="readerMode === 'default' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'">默认阅读器</span>
+                                    <svg x-show="readerMode === 'default'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+
+                                <button type="button" @click="selectReaderMode('comicread')" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left border-t border-gray-50 dark:border-white/5">
+                                    <span class="text-sm" :class="readerMode === 'comicread' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'">ComicRead 阅读器</span>
+                                    <svg x-show="readerMode === 'comicread'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    
+                    
+                                    </div>
+            </div>
+        </div>
+
+        <!-- 章节列表与下载器 (集成布局 - 优化版) -->
+        <div class="bg-white dark:bg-darkbg-800 rounded-2xl border border-gray-300 dark:border-white/20 shadow-sm">
+            <!-- 卡片头部：微调垂直边距 -->
+            <div class="py-3 px-6 border-b border-gray-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-6">
+                <h2 class="text-2xl font-black flex-shrink-0">
+                    章节列表
+                </h2>
+
+                <!-- 下载工具组 -->
+                <div class="flex flex-wrap items-center gap-4">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 p-6">
+                                                            <a href="/pc/view/index.php?zjid=715941" :href="readerUrl(715941)" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">1</a>
+                                                                                <a href="/pc/view/index.php?zjid=715942" :href="readerUrl(715942)" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">2</a>
+                                                                                <a href="/pc/view/index.php?zjid=715943" :href="readerUrl(715943)" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">3</a>
+                                                                                <a href="/pc/view/index.php?zjid=715944" :href="readerUrl(715944)" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">4</a>
+                                                                                <a href="/pc/view/index.php?zjid=715945" :href="readerUrl(715945)" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">5</a>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            6-10                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            11-15                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            16-20                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            21-25                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            26-30                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            31-36                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            37-41                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            42-45                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            46-50                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            51                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            52                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            53                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            54                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            55                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            56                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            601                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            602                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            603                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            604                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            605                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            606                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            607                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            608                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            609                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            610                        </div>
+                                                                                <div onclick="app.showLockTip('login')" class="p-3 bg-gray-50 dark:bg-darkbg-900 border border-gray-100 dark:border-white/5 rounded-xl text-sm text-center truncate text-gray-900 dark:text-gray-200 cursor-pointer hover:border-brand-500 hover:text-brand-500 hover:shadow-md transition-all">
+                            611                        </div>
+                                                </div>
+        </div>
+
+        <!-- 评论区 -->
+        <div id="commentSection" class="space-y-8 pt-10 border-t border-gray-200 dark:border-white/10">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <h2 class="text-2xl font-bold">评论 (0)</h2>
+                            </div>
+            
+            <div id="commentBody" class="space-y-8">
+            
+            <div id="commentList" class="space-y-6">
+                            </div>
+
+                        </div>
+        </div>
+
+        <!-- 粉丝打赏榜 (按图 1.png 定位在最右侧空白处) -->
+            </main>
+
+    
+    <!-- 自定义权限提示弹窗 (屏幕正中间) -->
+    <div x-show="lockModal.open" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+         style="display: none;">
+        
+        <div @click.away="lockModal.open = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+             class="bg-white dark:bg-darkbg-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-white/10">
+            
+            <div class="p-6 text-center space-y-4">
+                <!-- 图标 -->
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full" 
+                     :class="lockModal.type === 'vip' ? 'bg-amber-100 text-amber-500' : 'bg-blue-100 text-brand-500'">
+                    <svg x-show="lockModal.type === 'vip'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <svg x-show="lockModal.type === 'login'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                </div>
+
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white" x-text="lockModal.title"></h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400" x-text="lockModal.msg"></p>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-white/5 px-6 py-4 flex gap-3">
+                <button @click="lockModal.open = false" 
+                        class="flex-1 px-4 py-2 bg-white dark:bg-transparent border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    再看看
+                </button>
+                <script>
+                    const mangaDownloadChapters = [{"zjid":"715941","zjname":"1"},{"zjid":"715942","zjname":"2"},{"zjid":"715943","zjname":"3"},{"zjid":"715944","zjname":"4"},{"zjid":"715945","zjname":"5"},{"zjid":"715946","zjname":"6-10"},{"zjid":"715947","zjname":"11-15"},{"zjid":"715948","zjname":"16-20"},{"zjid":"715949","zjname":"21-25"},{"zjid":"715950","zjname":"26-30"},{"zjid":"715951","zjname":"31-36"},{"zjid":"715952","zjname":"37-41"},{"zjid":"715953","zjname":"42-45"},{"zjid":"715954","zjname":"46-50"},{"zjid":"715955","zjname":"51"},{"zjid":"715956","zjname":"52"},{"zjid":"715957","zjname":"53"},{"zjid":"715958","zjname":"54"},{"zjid":"715959","zjname":"55"},{"zjid":"715960","zjname":"56"},{"zjid":"715961","zjname":"601"},{"zjid":"715962","zjname":"602"},{"zjid":"715963","zjname":"603"},{"zjid":"715964","zjname":"604"},{"zjid":"715965","zjname":"605"},{"zjid":"715966","zjname":"606"},{"zjid":"715967","zjname":"607"},{"zjid":"715968","zjname":"608"},{"zjid":"715969","zjname":"609"},{"zjid":"715970","zjname":"610"},{"zjid":"715971","zjname":"611"}];
+
+                    window.app = {
+                        kuid: 23140,
+                        mangaName: "\u4e8c\u5ea6\u8f6c\u751f\u7684\u5c11\u5e74\u4f5c\u4e3as\u7ea7\u5192\u9669\u8005\u60f3\u8fc7\u5e73\u7a33\u751f\u6d3b\u30101-56\u8bdd 6-56\u662f\u751f\u8089\u3011\u3010\u4e8c\u5ea6\u8ee2\u751f\u3057\u305f\u5c11\u5e74\u306f\uff33\u30e9\u30f3\u30af\u5192\u967a\u8005\u3068\u3057\u3066\u5e73\u7a4f\u306b\u904e\u3054\u3059\u3011",
+                        formhash: 'c92f4f2a',
+                        isGuest: true,
+                        canDownload: false,
+
+                        goToNewDownload() {
+                            if (this.isGuest) { this.showLockTip('login'); return; }
+                            if (!this.canDownload) { this.showLockTip('download'); return; }
+
+                            const url = `/pc/xiazai/?kuid=${this.kuid}`;
+                            window.open(url, '_blank');
+                        },
+
+                        showLockTip(type) {
+                            const alpineData = Alpine.$data(document.querySelector('body'));
+
+                            if (type === 'login') {
+                                alpineData.lockModal = {
+                                    open: true,
+                                    type: 'login',
+                                    title: '需要登录',
+                                    msg: '此功能需要登录后才能继续使用，请先登录您的账号。',
+                                    btnText: '立即登录',
+                                    url: '/member.php?mod=logging&action=login'
+                                };
+                            } else if (type === 'vip') {
+                                alpineData.lockModal = {
+                                    open: true,
+                                    type: 'vip',
+                                    title: 'VIP 专属章节',
+                                    msg: '此章节为 VIP 会员专属内容，开通 VIP 即可畅享全站漫画。',
+                                    btnText: '开通 VIP',
+                                    url: '/pc/tiaozhuang/vip.php'
+                                };
+                            } else if (type === 'download') {
+                                alpineData.lockModal = {
+                                    open: true,
+                                    type: 'vip',
+                                    title: 'VIP 专属下载',
+                                    msg: '漫画下载功能为 VIP 会员专属，开通 VIP 即可畅享全站打包下载。',
+                                    btnText: '去开通 VIP',
+                                    url: '/pc/tiaozhuang/vip.php'
+                                };
+                            }
+                        },
+
+                        request(action, data, callback) {
+                            if (this.isGuest) { alert('请先登录'); return; }
+                            data.ajax_action = action;
+                            data.kuid = this.kuid;
+                            data.formhash = this.formhash;
+
+                            jQuery.ajax({
+                                url: 'index.php',
+                                type: 'POST',
+                                data: data,
+                                dataType: 'json',
+                                timeout: 300000,
+                                success: (res) => {
+                                    if (res.status === 'error') {
+                                        alert('操作失败: ' + res.message);
+                                    } else {
+                                        callback(res);
+                                    }
+                                },
+                                error: (xhr, status, error) => {
+                                    console.error('AJAX Error:', status, error, xhr.responseText);
+
+                                    if (status === 'parsererror' && xhr.responseText) {
+                                        if (xhr.responseText.indexOf('favorited') !== -1 || xhr.responseText.indexOf('unfavorited') !== -1 || xhr.responseText.indexOf('success') !== -1) {
+                                            callback(xhr.responseText);
+                                            return;
+                                        }
+                                    }
+
+                                    if (status === 'timeout') {
+                                        alert('请求超时，请稍后重试。');
+                                    } else {
+                                        const snippet = xhr.responseText ? xhr.responseText.substring(0, 100) : '无响应内容';
+                                        alert('请求失败 (' + status + '): ' + error + '\n详情: ' + snippet);
+                                    }
+                                }
+                            });
+                        },
+
+                        toggleFav() {
+                            this.request('toggle_fav', {}, (res) => {
+                                if (res === 'favorited') {
+                                    jQuery('#favText').text('已收藏');
+                                    jQuery('#favIcon').addClass('fill-brand-500 text-brand-500');
+                                    jQuery('#favCount').text(parseInt(jQuery('#favCount').text()) + 1);
+                                } else if (res === 'unfavorited') {
+                                    jQuery('#favText').text('收藏');
+                                    jQuery('#favIcon').removeClass('fill-brand-500 text-brand-500');
+                                    jQuery('#favCount').text(Math.max(0, parseInt(jQuery('#favCount').text()) - 1));
+                                }
+                            });
+                        },
+
+                        postDashang() {
+                            const amount = prompt('请输入打赏金额：', '10');
+                            if (!amount) return;
+                            this.request('post_dashang', { amount: amount }, (res) => {
+                                if (res === 'success') { alert('打赏成功！'); location.reload(); }
+                                else if (res === 'error:low_balance') alert('余额不足');
+                                else alert('操作失败');
+                            });
+                        },
+
+                        postComment() {
+                            const text = jQuery('#commentText').val().trim();
+                            if (!text) return alert('请输入评论内容');
+                            this.request('post_comment', { text: text }, (res) => {
+                                if (res === 'success') { location.reload(); }
+                                else if (res === 'error:too_fast') alert('评论太快了');
+                                else alert('发表失败');
+                            });
+                        },
+
+                        loadMoreComments() {
+                            const $btn = jQuery('#loadMoreBtn');
+                            const page = $btn.data('page');
+                            jQuery.get('index.php', { action: 'get_comments', kuid: this.kuid, page: page }, (res) => {
+                                if (res && res.length > 0) {
+                                    let html = '';
+                                    res.forEach(pl => {
+                                        html += `<div class="flex gap-4">
+                                            <img src="${pl.avatar}" class="w-12 h-12 rounded-full shrink-0" alt="avatar">
+                                            <div class="flex-grow pb-6 border-b border-gray-100 dark:border-white/5">
+                                                <div class="flex justify-between items-center mb-1">
+                                                    <span class="font-bold">${pl.username}</span>
+                                                    <span class="text-xs text-gray-400">${pl.time}</span>
+                                                </div>
+                                                <p class="text-sm text-gray-700 dark:text-gray-300">${pl.text}</p>
+                                            </div>
+                                        </div>`;
+                                    });
+                                    jQuery('#commentList').append(html);
+                                    $btn.data('page', page + 1);
+                                    if (res.length < 10) $btn.parent().hide();
+                                } else {
+                                    $btn.parent().hide();
+                                }
+                            });
+                        },
+
+                        getCommentsCollapsed() {
+                            try {
+                                return window.localStorage && window.localStorage.getItem('pc_details_comments_collapsed') === '1';
+                            } catch (error) {
+                                return false;
+                            }
+                        },
+
+                        saveCommentsCollapsed(collapsed) {
+                            try {
+                                if (window.localStorage) {
+                                    window.localStorage.setItem('pc_details_comments_collapsed', collapsed ? '1' : '0');
+                                }
+                            } catch (error) {}
+                        },
+
+                        applyCommentsCollapsed(collapsed) {
+                            const body = document.getElementById('commentBody');
+                            const btn = document.getElementById('commentToggleBtn');
+                            if (!body || !btn) return;
+
+                            this.commentsCollapsed = !!collapsed;
+                            if (this.commentsCollapsed) {
+                                body.setAttribute('hidden', 'hidden');
+                                btn.setAttribute('aria-expanded', 'false');
+                                btn.textContent = '显示评论';
+                            } else {
+                                body.removeAttribute('hidden');
+                                btn.setAttribute('aria-expanded', 'true');
+                                btn.textContent = '隐藏评论';
+                            }
+                        },
+
+                        initCommentsToggle() {
+                            this.applyCommentsCollapsed(this.getCommentsCollapsed());
+                        },
+
+                        toggleComments() {
+                            const collapsed = !this.commentsCollapsed;
+                            this.saveCommentsCollapsed(collapsed);
+                            this.applyCommentsCollapsed(collapsed);
+                        },
+
+                        deleteManga() {
+                            if (!confirm('确定要彻底删除这部漫画吗？此操作将清理所有图片和记录，且不可撤销！')) return;
+
+                            this.request('delete_manga', {}, (res) => {
+                                if (res === 'success') {
+                                    location.href = '/pc/pc/';
+                                } else {
+                                    alert('删除失败：' + res);
+                                }
+                            });
+                        }
+                    };
+                    window.app.initCommentsToggle();
+                </script>
+                <button @click="location.href = lockModal.url" 
+                        class="flex-1 px-4 py-2 text-white rounded-xl text-sm font-bold shadow-md transition-transform active:scale-95"
+                        :class="lockModal.type === 'vip' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-brand-500 hover:bg-brand-600'"
+                        x-text="lockModal.btnText">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-gray-200 dark:border-white/10 bg-white dark:bg-darkbg-900 mt-auto py-8 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-sm font-bold">
+            <!-- Left Side: Language Switcher -->
+            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                <button @click="open = !open" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-sm">
+                    <span class="text-[10px] font-bold text-gray-400" x-text="lang === 'CN' ? 'CN' : 'HK'">CN</span>
+                    <span x-text="lang === 'CN' ? '简体中文 (CN)' : '繁體中文 (HK/TW)'">简体中文 (CN)</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Dropdown Menu (Opens Upwards) -->
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     style="display: none;"
+                     class="absolute bottom-full mb-2 left-0 w-64 bg-white dark:bg-darkbg-800 border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden py-1 z-[60]">
+                    
+                    <!-- Item: CN -->
+                    <button @click="setLang('CN'); open = false" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-gray-400">CN</span>
+                            <span class="text-sm" :class="lang === 'CN' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'">简体中文 (CN)</span>
+                        </div>
+                        <svg x-show="lang === 'CN'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <!-- Item: HK -->
+                    <button @click="setLang('HK'); open = false" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-left border-t border-gray-50 dark:border-white/5">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-gray-400">HK</span>
+                            <span class="text-sm" :class="lang === 'HK' ? 'font-bold text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'">繁體中文 (HK/TW)</span>
+                        </div>
+                        <svg x-show="lang === 'HK'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side: Links and Clock -->
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <div class="flex items-center gap-6 text-gray-500 dark:text-gray-200">
+                    <a href="/pc/pc/" class="text-gray-600 dark:text-gray-200 hover:text-brand-500 dark:hover:text-white transition-colors">首页</a>
+                    <span class="text-gray-300 dark:text-gray-200">|</span>
+                    <a href="/forum.php" class="text-gray-600 dark:text-gray-200 hover:text-brand-500 dark:hover:text-white transition-colors">社区</a>
+                </div>
+                <span class="hidden md:block text-gray-300 dark:text-gray-200">|</span>
+                <div class="text-gray-400 dark:text-gray-200 font-mono" id="footerClock"></div>
+            </div>
+        </div>
+    </footer>
+
+    
+    <!-- Result Modal (PHP Generated) -->
+    
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleDateString('zh-CN', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false 
+            });
+            const footerClock = document.getElementById('footerClock');
+            if (footerClock) {
+                footerClock.textContent = timeString;
+            }
+        }
+        setInterval(updateClock, 60000);
+        updateClock(); // 立即执行一次
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二度转生的少年作为s级冒险者想过平稳生活 - 1 - zero搬运网</title>
+        <link rel="preconnect" href="//tupa.zerobyw33.com">
+        <script defer src="/static/zero/js/alpinejs.cdn.min.js?20260621"></script>
+    <link rel="stylesheet" href="/pc/view/assets/css/view-reader.css?20260722nofade1">
+    <script>
+        window.readerImageLoaded = function(image) {
+            var frame = image ? image.closest('.reader-image-frame') : null;
+            if (!frame) return;
+            frame.classList.remove('is-error');
+            frame.classList.add('is-loaded');
+        };
+
+        window.readerImageFailed = function(image) {
+            var frame = image ? image.closest('.reader-image-frame') : null;
+            if (!frame) return;
+            frame.classList.remove('is-loaded');
+            frame.classList.add('is-error');
+        };
+
+        window.readerRetryImage = function(button) {
+            var frame = button ? button.closest('.reader-image-frame') : null;
+            var image = frame ? frame.querySelector('.manga-image') : null;
+            if (!frame || !image) return;
+
+            frame.classList.remove('is-loaded', 'is-error');
+            var source = image.currentSrc || image.src;
+            if (!source) {
+                window.readerImageFailed(image);
+                return;
+            }
+
+            if (source.indexOf('blob:') === 0 || source.indexOf('data:') === 0) {
+                image.src = source;
+                return;
+            }
+
+            try {
+                var retryUrl = new URL(source, window.location.href);
+                retryUrl.searchParams.set('reader_retry', Date.now().toString());
+                image.src = retryUrl.href;
+            } catch (e) {
+                image.src = source;
+            }
+        };
+
+        window.readerStorageGet = function(key) {
+            try {
+                return window.localStorage.getItem(key);
+            } catch (e) {
+                return null;
+            }
+        };
+
+        window.readerStorageSet = function(key, value) {
+            try {
+                window.localStorage.setItem(key, value);
+            } catch (e) {}
+        };
+
+        window.readerStorageRemove = function(key) {
+            try {
+                window.localStorage.removeItem(key);
+            } catch (e) {}
+        };
+
+        window.getPreferredColorTheme = function() {
+            const savedTheme = window.readerStorageGet('color-theme');
+            if (savedTheme === 'dark' || savedTheme === 'light') {
+                return savedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        window.applyColorTheme = function(theme) {
+            const resolvedTheme = theme === 'dark' ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+            return resolvedTheme;
+        };
+
+        (function() {
+            const scriptSrc = '/pc/cnhkzhuanhuan/cnhk-browser.js?20260623b';
+            let loading = null;
+
+            function readLang() {
+                return window.readerStorageGet('user_lang') === 'HK' ? 'HK' : 'CN';
+            }
+
+            function writeLang(lang) {
+                window.readerStorageSet('user_lang', lang);
+                document.cookie = 'user_lang=' + lang + '; path=/; max-age=31536000';
+            }
+
+            function loadConverter(callback) {
+                if (window.PcCnHk) {
+                    if (callback) callback(window.PcCnHk);
+                    return;
+                }
+                if (!loading) {
+                    loading = new Promise(function(resolve, reject) {
+                        const script = document.createElement('script');
+                        script.src = scriptSrc;
+                        script.onload = function() { resolve(window.PcCnHk); };
+                        script.onerror = function() {
+                            loading = null;
+                            reject(new Error('CN/HK converter load failed'));
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
+                loading.then(function(api) {
+                    if (callback) callback(api);
+                }).catch(function(error) {
+                    console.error(error);
+                    document.documentElement.classList.remove('is-translating');
+                });
+            }
+
+            window.pcCnHkGetLang = readLang;
+            window.pcCnHkSetLang = function(newLang) {
+                const lang = newLang === 'HK' ? 'HK' : 'CN';
+                writeLang(lang);
+                if (lang === 'HK') {
+                    loadConverter(function(api) { api.setLang('HK'); });
+                } else {
+                    if (window.PcCnHk) window.PcCnHk.setLang('CN');
+                    location.reload();
+                }
+            };
+            if (readLang() === 'HK') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadConverter(function(api) { api.applySaved(); });
+                });
+            }
+        })();
+
+        (function() {
+            window.applyColorTheme(window.getPreferredColorTheme());
+
+            const saved = window.readerStorageGet('manga_reader_v3_settings');
+            let css = '';
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    const isVertical = config.readingMode === 'vertical' || !config.readingMode;
+                    if (isVertical) {
+                        let width = config.maxWidth || '800px';
+                        if (config.pageMode === 'double') {
+                            width = (parseInt(width, 10) * 2) + 'px';
+                        }
+                        css += `#image-container:not(.fixed) { max-width: ${width} !important; margin: 0 auto; } `;
+                        if (config.gapY) {
+                            css += `.image-wrapper { margin-bottom: ${config.gapY} !important; } `;
+                        }
+                    }
+                    const borderWidth = config.borderWidth || '1px';
+                    css += `.manga-image { border: ${borderWidth} solid #000000 !important; } `;
+                } catch(e) {}
+            } else {
+                css += '#image-container:not(.fixed) { max-width: 800px !important; margin: 0 auto; } ';
+                css += '.manga-image { border: 1px solid #000000 !important; } ';
+            }
+
+            if (css) {
+                const style = document.createElement('style');
+                style.textContent = css;
+                document.head.appendChild(style);
+            }
+        })();
+
+    </script>
+    <link rel="stylesheet" href="/pc/view/assets/css/view-tailwind.css?v=db3685fa61e2">
+</head>
+<body class="pc-view-page" x-data="readerData()" x-init="init()" @contextmenu.prevent="showNav = !showNav">
+
+    <div class="absolute top-0 left-0 w-full p-2 pl-0 z-[90] pointer-events-none text-black dark:text-white opacity-50 hover:opacity-100 transition-all"
+         :class="{ 'opacity-0 hover:opacity-100': hideUI }">
+        <div class="reader-breadcrumb pointer-events-auto flex items-center text-xl font-bold transition-all"
+             style="max-width: var(--nav-max-width, 25vw);"
+             :style="{ maxWidth: readingMode === 'vertical' ? (maxWidth === '100%' ? '15vw' : `calc((100vw - ${(pageMode === 'double') ? (parseInt(maxWidth, 10) * 2) + 'px' : maxWidth}) / 2 - 80px)`) : '45vw' }">
+            <a href="/pc/pc/" class="hover:!text-blue-400 transition-colors whitespace-nowrap flex-shrink-0">首页</a>
+            <span class="mx-2 flex-shrink-0">/</span>
+            <a href="/pc/details/?kuid=23140" class="hover:!text-blue-400 transition-colors truncate">二度转生的少年作为s级冒险者想过平稳生活</a>
+            <span class="mx-2 flex-shrink-0">/</span>
+            <span class="flex-shrink-0 truncate">1</span>
+        </div>
+    </div>
+
+        <div class="reader-top-tools absolute top-6 right-6 z-[100] flex flex-col items-end gap-3">
+        <div class="reader-top-tools-main flex gap-3">
+            <button type="button" @click="hideUI = !hideUI" class="reader-tool-btn px-4 py-2 rounded-full text-sm font-medium transition-all"
+                    :class="{ 'opacity-0 hover:opacity-100': hideUI }">
+                <span data-short="隐藏" x-text="hideUI ? '退出隐藏' : '隐藏界面'">隐藏界面</span>
+            </button>
+            <div class="reader-top-actions flex gap-3 transition-all" :class="{ 'opacity-0 hover:opacity-100': hideUI }">
+                                <button type="button" @click="showNav = !showNav" class="reader-tool-btn px-4 py-2 rounded-full text-sm font-medium transition-all">
+                    <span data-short="工具" x-text="showNav ? '隐藏工具栏' : '显示工具栏'">显示工具栏</span>
+                </button>
+                <button type="button" @click="toggleDark()" class="reader-tool-btn reader-tool-icon-btn rounded-full transition-all" title="切换深色/浅色模式" aria-label="切换深色/浅色模式">
+                    <svg x-show="isDark" class="sun-icon w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg x-show="!isDark" class="moon-icon w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                <button type="button" @click="toggleAutoPlay()"
+                        class="reader-tool-btn reader-tool-icon-btn rounded-full transition-all"
+                        :class="{ 'reader-autoplay-active': autoPlayActive }"
+                        :title="autoPlayActive ? '暂停自动播放' : '开始自动播放'"
+                        :aria-label="autoPlayActive ? '暂停自动播放' : '开始自动播放'"
+                        :aria-pressed="autoPlayActive ? 'true' : 'false'">
+                    <svg x-show="!autoPlayActive" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5z" /></svg>
+                    <svg x-show="autoPlayActive" x-cloak class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7V5zm6.5 0H17v14h-3.5V5z" /></svg>
+                </button>
+            </div>
+        </div>
+                    <div class="reader-translate-row flex justify-end gap-3 transition-all" :class="{ 'opacity-0 hover:opacity-100': hideUI }">
+                                <button type="button" @click="translateCurrentChapter()" class="reader-tool-btn px-4 py-2 rounded-full text-sm font-medium transition-all">
+            <span data-short="翻译">翻译</span>
+        </button>
+                                                </div>
+                <div x-show="translateStatus" x-cloak class="reader-translate-status reader-tool-btn px-4 py-2 rounded-full text-sm font-medium transition-all"
+     :class="{ 'opacity-0 hover:opacity-100': hideUI }">
+    <span x-text="translateStatus"></span>
+</div>
+    </div>
+
+    <div x-show="readingMode === 'paged' || readingMode === 'horizontal'" x-cloak class="fixed top-0 left-0 w-[35%] h-[calc(100vh-20px)] z-[90] cursor-left" @click="flipDirection === 'japan' ? nextPage() : prevPage()"></div>
+    <div x-show="readingMode === 'paged' || readingMode === 'horizontal'" x-cloak class="fixed top-0 right-0 w-[35%] h-[calc(100vh-20px)] z-[90] cursor-right" @click="flipDirection === 'japan' ? prevPage() : nextPage()"></div>
+    <div x-show="readingMode === 'paged' || readingMode === 'horizontal'" x-cloak class="fixed top-0 left-[35%] w-[30%] h-[calc(100vh-20px)] z-[90] cursor-pointer" @click="showNav = !showNav"></div>
+    <div x-show="readingMode === 'vertical-paged'" x-cloak class="fixed top-0 left-0 w-full h-[50%] z-[90] reader-cursor-up" @click="prevPage()"></div>
+    <div x-show="readingMode === 'vertical-paged'" x-cloak class="fixed bottom-0 left-0 w-full h-[50%] z-[90] reader-cursor-down" @click="nextPage()"></div>
+    <main class="min-h-screen pb-20 pt-0" :class="readingMode !== 'vertical' ? 'overflow-hidden h-screen w-full bg-gray-100 dark:bg-[#0a0a0a]' : ''">
+        <div id="image-container"
+             class="transition-none"
+             :class="{
+                'mx-auto flex flex-wrap justify-center content-start': readingMode === 'vertical',
+                'fixed inset-0 z-[80] bg-gray-100 dark:bg-[#0a0a0a] flex flex-nowrap items-center overflow-x-auto overflow-y-hidden': readingMode === 'horizontal',
+                'fixed inset-0 z-[80] bg-gray-100 dark:bg-[#0a0a0a] flex items-center justify-center overflow-hidden cursor-pointer': readingMode === 'paged' || readingMode === 'vertical-paged'
+             }"
+             :style="getContainerStyle()"
+             @scroll.throttle.50ms="handleHorizontalScroll($event)">
+
+                                                <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(0),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(0)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 1 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 1 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/001.jpg" data-page-index="0" data-page-name="001" fetchpriority="high" loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 1 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                1 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            1 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(1),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(1)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 2 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 2 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/002.jpg" data-page-index="1" data-page-name="002"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 2 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                2 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            2 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(2),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(2)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 3 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 3 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/003.jpg" data-page-index="2" data-page-name="003"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 3 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                3 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            3 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(3),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(3)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 4 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 4 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/004.jpg" data-page-index="3" data-page-name="004"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 4 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                4 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            4 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(4),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(4)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 5 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 5 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/005.jpg" data-page-index="4" data-page-name="005"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 5 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                5 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            5 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(5),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(5)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 6 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 6 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/006.jpg" data-page-index="5" data-page-name="006"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 6 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                6 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            6 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(6),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(6)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 7 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 7 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/007.jpg" data-page-index="6" data-page-name="007"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 7 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                7 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            7 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(7),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(7)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 8 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 8 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/008.jpg" data-page-index="7" data-page-name="008"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 8 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                8 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            8 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(8),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(8)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 9 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 9 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/009.jpg" data-page-index="8" data-page-name="009"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 9 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                9 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            9 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(9),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(9)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 10 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 10 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/010.jpg" data-page-index="9" data-page-name="010"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 10 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                10 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            10 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(10),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(10)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 11 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 11 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/011.jpg" data-page-index="10" data-page-name="011"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 11 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                11 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            11 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(11),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(11)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 12 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 12 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/012.jpg" data-page-index="11" data-page-name="012"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 12 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                12 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            12 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(12),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(12)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 13 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 13 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/013.jpg" data-page-index="12" data-page-name="013"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 13 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                13 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            13 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(13),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(13)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 14 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 14 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/014.jpg" data-page-index="13" data-page-name="014"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 14 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                14 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            14 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(14),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(14)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 15 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 15 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/015.jpg" data-page-index="14" data-page-name="015"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 15 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                15 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            15 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(15),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(15)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 16 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 16 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/016.jpg" data-page-index="15" data-page-name="016"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 16 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                16 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            16 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(16),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(16)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 17 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 17 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/017.jpg" data-page-index="16" data-page-name="017"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 17 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                17 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            17 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(17),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(17)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 18 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 18 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/018.jpg" data-page-index="17" data-page-name="018"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 18 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                18 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            18 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(18),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(18)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 19 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 19 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/019.jpg" data-page-index="18" data-page-name="019"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 19 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                19 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            19 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(19),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(19)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 20 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 20 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/020.jpg" data-page-index="19" data-page-name="020"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 20 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                20 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            20 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(20),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(20)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 21 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 21 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/021.jpg" data-page-index="20" data-page-name="021"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 21 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                21 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            21 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(21),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(21)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 22 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 22 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/022.jpg" data-page-index="21" data-page-name="022"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 22 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                22 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            22 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(22),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(22)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 23 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 23 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/023.jpg" data-page-index="22" data-page-name="023"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 23 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                23 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            23 / 24                        </div>
+                    </div>
+                                    <div class="image-wrapper relative group flex flex-col items-center"
+                         :class="{
+                            'force-hidden': !isImageVisible(23),
+                            'w-full': readingMode === 'vertical'
+                         }"
+                         :style="getWrapperStyle(23)">
+                        <div class="reader-image-frame relative flex justify-center items-center" :class="{ 'w-full': readingMode === 'vertical' }">
+                            <div class="reader-image-loading" aria-hidden="true">
+                                <span class="reader-image-spinner"></span>
+                                <span>正在加载第 24 页</span>
+                            </div>
+                            <div class="reader-image-error" role="status">
+                                <span class="reader-image-error-icon">!</span>
+                                <strong>第 24 页加载失败</strong>
+                                <span>请检查网络后重试</span>
+                                <button type="button" class="reader-image-retry" onclick="window.readerRetryImage(this)">重新加载</button>
+                            </div>
+                            <img src="//tupa.zerobyw33.com/manhua/p5n5w5e6nda/1/024.jpg" data-page-index="23" data-page-name="024"  loading="eager" decoding="async" class="manga-image" :style="getImageStyle()" alt="第 24 页" onload="window.readerImageLoaded(this)" onerror="window.readerImageFailed(this)">
+                            <div x-show="showPageNum && readingMode !== 'vertical'" x-cloak
+                                 class="absolute right-2 bottom-2 z-10 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none font-bold font-mono shadow-sm border border-white/10">
+                                24 / 24                            </div>
+                        </div>
+                        <div x-show="showPageNum && readingMode === 'vertical'" x-cloak :style="{ marginTop: borderWidth }" class="w-full py-1 text-center font-bold font-mono text-black dark:text-white text-[12px]">
+                            24 / 24                        </div>
+                    </div>
+                            
+                            <div class="image-wrapper relative flex flex-col justify-center items-center p-6 z-[100]"
+                     :class="{ 'force-hidden': !isEndPanelVisible() }"
+                     :style="getEndPanelStyle()">
+                    <div class="reader-chapter-panel w-full max-w-4xl flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 bg-gray-100 dark:bg-white/5 p-8 rounded-[2rem] border border-gray-200 dark:border-white/10"
+                         :class="readingMode !== 'vertical' ? 'bg-white dark:bg-[#1c1c1e] p-12 scale-110' : ''">
+                                                    <button type="button" disabled class="w-full md:w-auto px-10 py-4 bg-gray-200 dark:bg-white/5 text-gray-400 cursor-not-allowed rounded-full font-black text-lg text-center">没有了</button>
+                        
+                        <button type="button" @click="openCatalog = true" class="px-12 py-3 bg-white hover:bg-gray-100 text-base font-black text-gray-700 rounded-full transition-all flex items-center gap-2 border border-gray-200">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                            目录
+                        </button>
+
+                                                    <a href="/pc/view/index.php?zjid=715942" class="w-full md:w-auto px-10 py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-full font-black text-lg transition-all text-center flex items-center justify-center gap-2 group">
+                                下一章
+                                <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                            </a>
+                                            </div>
+                </div>
+                    </div>
+    </main>
+
+    
+    <div x-show="lockModal.open" x-cloak @click.self="lockModal.open = false"
+         class="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-[#1c1c1e]">
+            <div class="space-y-4 px-6 py-6 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+                     :class="lockModal.type === 'vip' ? 'bg-amber-100 text-amber-500' : 'bg-blue-100 text-brand-500'">
+                    <svg x-show="lockModal.type === 'vip'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <svg x-show="lockModal.type === 'login'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white" x-text="lockModal.title"></h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400" x-text="lockModal.msg"></p>
+            </div>
+            <div class="flex gap-3 bg-gray-50 px-6 py-4 dark:bg-white/5">
+                <button type="button" @click="lockModal.open = false"
+                        class="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-white/5">
+                    再看看
+                </button>
+                <button type="button" @click="window.location.href = lockModal.url"
+                        class="flex-1 rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-brand-600"
+                        x-text="lockModal.btnText"></button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showNav" x-cloak class="reader-bottom-nav fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-2xl flex flex-col gap-3 pointer-events-none transition-all duration-300">
+        <nav class="pointer-events-auto bg-black/90 border border-white/10 rounded-full p-1.5 flex items-center justify-around shadow-2xl text-gray-400">
+            <button type="button" @click="openCatalog = true" class="flex flex-col items-center gap-1 px-8 py-1.5 transition-colors group">
+                <div class="p-1.5 group-hover:bg-white/10 rounded-full transition-all"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg></div>
+                <span class="text-[10px] font-bold">目录</span>
+            </button>
+            <button type="button" @click="showSettings = true" class="flex flex-col items-center gap-1 px-8 py-1.5 transition-colors group">
+                <div class="p-1.5 group-hover:bg-white/10 rounded-full transition-all"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg></div>
+                <span class="text-[10px] font-bold">阅读设置</span>
+            </button>
+            <button type="button" @click="showImageSettings = true" class="flex flex-col items-center gap-1 px-8 py-1.5 transition-colors group">
+                <div class="p-1.5 group-hover:bg-white/10 rounded-full transition-all"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><rect x="3.75" y="4.25" width="16.5" height="15.5" rx="2.4" ry="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.5 16l3.4-3.4a1.6 1.6 0 012.25 0l2.05 2.05 1.05-1.05a1.6 1.6 0 012.25 0L20.25 16" /><circle cx="8.6" cy="8.7" r="1.25" fill="currentColor" stroke="none" /></svg></div>
+                <span class="text-[10px] font-bold">图片设置</span>
+            </button>
+            <button type="button" @click="toggleFullscreen()" class="flex flex-col items-center gap-1 px-8 py-1.5 text-gray-400 hover:text-white transition-colors">
+                <div class="p-1.5 hover:bg-white/10 rounded-full transition-all">
+                    <svg x-show="!isFullscreen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                    <svg x-show="isFullscreen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </div>
+                <span class="text-[10px] font-bold" x-text="isFullscreen ? '退出' : '全屏'">全屏</span>
+            </button>
+        </nav>
+        <div class="pointer-events-auto bg-black/90 border border-white/10 rounded-full px-6 py-3 flex items-center gap-4 shadow-2xl"
+             :style="flipDirection === 'japan' ? 'direction: rtl' : 'direction: ltr'">
+            <button type="button" @click="scrollToPage(currentPage - 1)" class="text-white/60 hover:text-white"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+            <span class="text-xs font-mono text-white/80 w-16 text-center" style="direction: ltr !important;"><span x-text="currentPage"></span> / <span x-text="totalPages"></span></span>
+            <input type="range" min="1" :max="totalPages" x-model="currentPage"
+                   @mousedown="isSeeking = true" @touchstart="isSeeking = true"
+                   @mouseup="isSeeking = false" @touchend="isSeeking = false"
+                   @input="scrollToPage(currentPage)"
+                   class="reader-range flex-1 h-1 bg-white/20 rounded-full cursor-pointer">
+            <button type="button" @click="scrollToPage(currentPage + 1)" class="text-white/60 hover:text-white"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+        </div>
+    </div>
+
+    <div x-show="showSettings" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div @click="showSettings = false" class="absolute inset-0 bg-black/60"></div>
+        <div class="reader-modal-card reader-settings-modal-card relative w-full bg-[#1c1c1e] text-white rounded-[2rem] p-7 shadow-2xl border border-white/5">
+            <div class="flex justify-between items-center mb-5 px-2">
+                <h3 class="text-xl font-bold">阅读设置</h3>
+                <button type="button" @click="showSettings = false" class="p-2 hover:bg-white/10 rounded-full transition-colors"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="bg-[#0a0a0a] rounded-2xl p-5 space-y-5 text-sm font-medium">
+                <div class="reader-mode-row">
+                    <span class="text-gray-300 w-20 flex-shrink-0">阅读模式</span>
+                    <div class="reader-mode-options">
+                        <button type="button" @click="setReadingMode('vertical')" :class="readingMode === 'vertical' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice reader-mode-choice py-2 rounded-full border text-sm font-bold transition-all">上下滚动</button>
+                        <button type="button" @click="setReadingMode('vertical-paged')" :class="readingMode === 'vertical-paged' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice reader-mode-choice py-2 rounded-full border text-sm font-bold transition-all">上下翻页</button>
+                        <button type="button" @click="setReadingMode('horizontal')" :class="readingMode === 'horizontal' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice reader-mode-choice py-2 rounded-full border text-sm font-bold transition-all">左右滚动</button>
+                        <button type="button" @click="setReadingMode('paged')" :class="readingMode === 'paged' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice reader-mode-choice py-2 rounded-full border text-sm font-bold transition-all">左右翻页</button>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-5" :class="readingMode === 'horizontal' || readingMode === 'vertical-paged' ? 'opacity-30 pointer-events-none' : ''">
+                    <span class="text-gray-300 w-20">页面模式</span>
+                    <button type="button" @click="setPageMode('single')" :class="readingMode === 'vertical-paged' || pageMode === 'single' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">单页</button>
+                    <button type="button" @click="setPageMode('double')" :class="readingMode !== 'vertical-paged' && pageMode === 'double' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">双页</button>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-5" :class="readingMode === 'vertical-paged' || (readingMode === 'vertical' && pageMode === 'single') ? 'opacity-30 pointer-events-none' : ''">
+                    <span class="text-gray-300 w-20">翻页方向</span>
+                    <button type="button" @click="setFlipDirection('normal')" :class="readingMode === 'vertical-paged' || flipDirection === 'normal' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">普通模式</button>
+                    <button type="button" @click="setFlipDirection('japan')" :class="readingMode !== 'vertical-paged' && flipDirection === 'japan' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">日漫模式</button>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-5" :class="readingMode === 'vertical-paged' || pageMode === 'single' ? 'opacity-30 pointer-events-none' : ''">
+                    <span class="text-gray-300 w-20">首页单页</span>
+                    <button type="button" @click="setFirstPageSpread(false)" :class="readingMode === 'vertical-paged' || !firstPageSpread ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">关闭</button>
+                    <button type="button" @click="setFirstPageSpread(true)" :class="readingMode !== 'vertical-paged' && firstPageSpread ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">开启</button>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-5">
+                    <span class="text-gray-300 w-20">显示页数</span>
+                    <button type="button" @click="setOption('showPageNum', false)" :class="!showPageNum ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">关闭</button>
+                    <button type="button" @click="setOption('showPageNum', true)" :class="showPageNum ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">开启</button>
+                </div>
+                <div class="border-t border-white/5 pt-5">
+                    <div class="reader-autoplay-layout">
+                        <span class="reader-autoplay-title text-gray-200 font-bold">自动播放</span>
+                        <span class="reader-autoplay-group-label">上下／左右滚动速度</span>
+                        <label for="pc-autoplay-page-interval" class="reader-autoplay-group-label">上下／左右翻页间隔</label>
+                        <div class="reader-autoplay-speed-options">
+                            <button type="button" @click="setAutoScrollSpeed('slow')" :class="autoScrollSpeed === 'slow' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">慢</button>
+                            <button type="button" @click="setAutoScrollSpeed('medium')" :class="autoScrollSpeed === 'medium' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">中</button>
+                            <button type="button" @click="setAutoScrollSpeed('fast')" :class="autoScrollSpeed === 'fast' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="reader-choice px-5 py-2 rounded-full border text-sm font-bold transition-all">快</button>
+                        </div>
+                        <select id="pc-autoplay-page-interval" x-model.number="autoPageInterval" @change="setAutoPageInterval($event.target.value)" class="reader-autoplay-select" aria-label="自动翻页间隔">
+                            <option value="1">1 秒</option>
+                            <option value="2">2 秒</option>
+                            <option value="3">3 秒</option>
+                            <option value="4">4 秒</option>
+                            <option value="5">5 秒</option>
+                            <option value="6">6 秒</option>
+                            <option value="7">7 秒</option>
+                            <option value="8">8 秒</option>
+                            <option value="9">9 秒</option>
+                            <option value="10">10 秒</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center border-t border-white/5 pt-5 mt-1 gap-3">
+                    <button type="button" @click="resetToDefault()" class="flex-1 py-3 rounded-full bg-white/5 hover:bg-brand-600 hover:text-white text-gray-400 font-bold transition-all">设为默认</button>
+                    <button type="button" @click="saveSettings()" class="flex-1 py-3 rounded-full bg-white/5 hover:bg-brand-600 hover:text-white text-gray-400 font-bold transition-all">保存配置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showImageSettings" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div @click="showImageSettings = false" class="absolute inset-0 bg-black/60"></div>
+        <div class="reader-modal-card relative w-full max-w-3xl bg-[#1c1c1e] text-white rounded-[2rem] p-8 shadow-2xl border border-white/5">
+            <div class="flex justify-between items-center mb-6 px-2">
+                <h3 class="text-xl font-bold">图片设置</h3>
+                <button type="button" @click="showImageSettings = false" class="p-2 hover:bg-white/10 rounded-full transition-colors"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="bg-[#0a0a0a] rounded-2xl p-6 space-y-8 text-sm font-medium">
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-gray-300 w-20">显示宽度</span>
+                    <button type="button" @click="setOption('maxWidth', '600px')" :class="maxWidth === '600px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-5 py-2 rounded-full border text-sm font-bold transition-all">600px</button>
+                    <button type="button" @click="setOption('maxWidth', '800px')" :class="maxWidth === '800px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-5 py-2 rounded-full border text-sm font-bold transition-all">800px</button>
+                    <button type="button" @click="setOption('maxWidth', '1000px')" :class="maxWidth === '1000px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-5 py-2 rounded-full border text-sm font-bold transition-all">1000px</button>
+                    <button type="button" @click="setOption('maxWidth', '1200px')" :class="maxWidth === '1200px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-5 py-2 rounded-full border text-sm font-bold transition-all" x-show="readingMode === 'vertical'">1200px</button>
+                    <button type="button" @click="setOption('maxWidth', '100%')" :class="maxWidth === '100%' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-5 py-2 rounded-full border text-sm font-bold transition-all" x-show="readingMode !== 'vertical'">100%</button>
+                    <div class="flex items-center" x-data="{ temp: '' }">
+                        <input type="text" x-model="temp" class="w-20 bg-white/5 border border-white/10 rounded-l-full px-3 py-2 text-sm text-center outline-none transition-all focus:border-brand-500">
+                        <button type="button" @click="if(temp) setOption('maxWidth', temp + 'px'); temp = ''" class="bg-white/10 border-y border-r border-white/10 rounded-r-full px-4 py-2 text-sm font-bold -ml-px hover:bg-white/20 transition-all">确定</button>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-8" :class="readingMode !== 'vertical' ? 'opacity-30 pointer-events-none grayscale' : ''">
+                    <span class="text-gray-300 w-20">上下间距</span>
+                    <button type="button" @click="setOption('gapY', '0px')" :class="gapY === '0px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">0px</button>
+                    <button type="button" @click="setOption('gapY', '5px')" :class="gapY === '5px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">5px</button>
+                    <button type="button" @click="setOption('gapY', '20px')" :class="gapY === '20px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">20px</button>
+                    <div class="flex items-center" x-data="{ temp: '' }">
+                        <input type="text" x-model="temp" class="w-20 bg-white/5 border border-white/10 rounded-l-full px-3 py-2 text-sm text-center outline-none transition-all focus:border-brand-500">
+                        <button type="button" @click="if(temp) setOption('gapY', temp + 'px'); temp = ''" class="bg-white/10 border-y border-r border-white/10 rounded-r-full px-4 py-2 text-sm font-bold -ml-px hover:bg-white/20 transition-all">确定</button>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-8" :class="readingMode === 'vertical-paged' || (readingMode !== 'horizontal' && pageMode === 'single') ? 'opacity-30 pointer-events-none grayscale' : ''">
+                    <span class="text-gray-300 w-20">左右间距</span>
+                    <button type="button" @click="setOption('gapX', '0px')" :class="gapX === '0px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">0px</button>
+                    <button type="button" @click="setOption('gapX', '5px')" :class="gapX === '5px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">5px</button>
+                    <button type="button" @click="setOption('gapX', '20px')" :class="gapX === '20px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">20px</button>
+                    <div class="flex items-center" x-data="{ temp: '' }">
+                        <input type="text" x-model="temp" class="w-20 bg-white/5 border border-white/10 rounded-l-full px-3 py-2 text-sm text-center outline-none transition-all focus:border-brand-500">
+                        <button type="button" @click="if(temp) setOption('gapX', temp + 'px'); temp = ''" class="bg-white/10 border-y border-r border-white/10 rounded-r-full px-4 py-2 text-sm font-bold -ml-px hover:bg-white/20 transition-all">确定</button>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 border-t border-white/5 pt-8">
+                    <span class="text-gray-300 w-20">边框大小</span>
+                    <button type="button" @click="setOption('borderWidth', '0px')" :class="borderWidth === '0px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">0px</button>
+                    <button type="button" @click="setOption('borderWidth', '1px')" :class="borderWidth === '1px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">1px</button>
+                    <button type="button" @click="setOption('borderWidth', '5px')" :class="borderWidth === '5px' ? 'border-brand-500 text-brand-500 bg-brand-500/10' : 'border-white/10 text-gray-500'" class="px-6 py-2 rounded-full border text-sm font-bold transition-all">5px</button>
+                    <div class="flex items-center" x-data="{ temp: '' }">
+                        <input type="text" x-model="temp" class="w-20 bg-white/5 border border-white/10 rounded-l-full px-3 py-2 text-sm text-center outline-none transition-all focus:border-brand-500">
+                        <button type="button" @click="if(temp) setOption('borderWidth', temp + 'px'); temp = ''" class="bg-white/10 border-y border-r border-white/10 rounded-r-full px-4 py-2 text-sm font-bold -ml-px hover:bg-white/20 transition-all">确定</button>
+                    </div>
+                </div>
+                <div class="flex items-center border-t border-white/5 pt-8 mt-2 gap-3">
+                    <button type="button" @click="resetToDefault()" class="flex-1 py-3 rounded-full bg-white/5 hover:bg-brand-600 hover:text-white text-gray-400 font-bold transition-all">设为默认</button>
+                    <button type="button" @click="saveSettings()" class="flex-1 py-3 rounded-full bg-white/5 hover:bg-brand-600 hover:text-white text-gray-400 font-bold transition-all">保存配置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="openCatalog" x-cloak class="fixed inset-0 z-[110] flex justify-center items-end">
+        <div @click="openCatalog = false" class="absolute inset-0 bg-black/60"></div>
+        <div class="relative w-full max-w-3xl bg-[#1c1c1e] rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto shadow-2xl border-t border-white/10">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">目录</h3>
+                <button type="button" @click="openCatalog = false" class="text-gray-400 hover:text-white"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    <a href="/pc/view/index.php?zjid=715941" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-brand-600 text-white shadow-lg">1</a>
+                                    <a href="/pc/view/index.php?zjid=715942" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">2</a>
+                                    <a href="/pc/view/index.php?zjid=715943" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">3</a>
+                                    <a href="/pc/view/index.php?zjid=715944" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">4</a>
+                                    <a href="/pc/view/index.php?zjid=715945" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">5</a>
+                                    <a href="/pc/view/index.php?zjid=715946" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">6-10</a>
+                                    <a href="/pc/view/index.php?zjid=715947" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">11-15</a>
+                                    <a href="/pc/view/index.php?zjid=715948" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">16-20</a>
+                                    <a href="/pc/view/index.php?zjid=715949" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">21-25</a>
+                                    <a href="/pc/view/index.php?zjid=715950" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">26-30</a>
+                                    <a href="/pc/view/index.php?zjid=715951" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">31-36</a>
+                                    <a href="/pc/view/index.php?zjid=715952" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">37-41</a>
+                                    <a href="/pc/view/index.php?zjid=715953" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">42-45</a>
+                                    <a href="/pc/view/index.php?zjid=715954" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">46-50</a>
+                                    <a href="/pc/view/index.php?zjid=715955" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">51</a>
+                                    <a href="/pc/view/index.php?zjid=715956" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">52</a>
+                                    <a href="/pc/view/index.php?zjid=715957" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">53</a>
+                                    <a href="/pc/view/index.php?zjid=715958" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">54</a>
+                                    <a href="/pc/view/index.php?zjid=715959" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">55</a>
+                                    <a href="/pc/view/index.php?zjid=715960" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">56</a>
+                                    <a href="/pc/view/index.php?zjid=715961" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">601</a>
+                                    <a href="/pc/view/index.php?zjid=715962" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">602</a>
+                                    <a href="/pc/view/index.php?zjid=715963" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">603</a>
+                                    <a href="/pc/view/index.php?zjid=715964" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">604</a>
+                                    <a href="/pc/view/index.php?zjid=715965" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">605</a>
+                                    <a href="/pc/view/index.php?zjid=715966" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">606</a>
+                                    <a href="/pc/view/index.php?zjid=715967" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">607</a>
+                                    <a href="/pc/view/index.php?zjid=715968" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">608</a>
+                                    <a href="/pc/view/index.php?zjid=715969" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">609</a>
+                                    <a href="/pc/view/index.php?zjid=715970" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">610</a>
+                                    <a href="/pc/view/index.php?zjid=715971" class="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">611</a>
+                            </div>
+        </div>
+    </div>
+    <script>
+        function readerData() {
+            const imageCount = 24;
+            const settingsKey = 'manga_reader_v3_settings';
+            const prevChapterUrl = "";
+            const nextChapterUrl = "\/pc\/view\/index.php?zjid=715942";
+            const localTranslate = {"enabled":false,"apiUrl":"","chapterApiUrl":"","images":[],"mangaTitle":"二度转生的少年作为s级冒险者想过平稳生活","chapterTitle":"1","zjid":715941,"kuid":23140,"concurrency":6,"chapterQueueEnabled":true,"prefetchWindow":30,"streamEnabled":true,"streamInitialPages":1,"pollIntervalMs":1000,"reuseCache":true,"chapterModeEnabled":true,"buttonText":"翻译","buttonPosition":"below","profiles":[{"value":"gao","label":"慢（高质量）","folder":"gao"},{"value":"zhon","label":"中（平衡）","folder":"zhon"},{"value":"di","label":"快（低质量）","folder":"di"},{"value":"cpu","label":"cpu（低质量）","folder":"cpu"}],"defaultProfile":"gao","uploadExtension":"jpg","protocolUrl":"comicread://start","missingToolUrl":"/forum.php?mod=viewthread&tid=35&extra=","autoHttps":true,"localNetworkCompat":true,"openMissingToolPage":false,"runtimeRetryCount":20,"runtimeRetryWaitMs":3000,"stopOnPageClose":true,"requiresVip":true,"canTranslate":false,"lockType":"login"};
+            // 只缓存本页元素引用；图片加载、尺寸和布局仍由原有代码处理。
+            let readerWrappers = null;
+            let windowScrollTimer = null;
+
+            return {
+                isDark: document.documentElement.classList.contains('dark'),
+                isFullscreen: false,
+                showNav: false,
+                hideUI: false,
+                openCatalog: false,
+                showSettings: false,
+                showImageSettings: false,
+                lockModal: {
+                    open: false,
+                    type: 'login',
+                    title: '',
+                    msg: '',
+                    btnText: '',
+                    url: ''
+                },
+
+                readingMode: 'vertical',
+                pageMode: 'single',
+                flipDirection: 'normal',
+                firstPageSpread: false,
+                showPageNum: false,
+
+                maxWidth: '800px',
+                gapY: '0px',
+                gapX: '0px',
+                borderWidth: '1px',
+
+                prevChapterUrl,
+                nextChapterUrl,
+                currentPage: 1,
+                totalPages: 1,
+                isSeeking: false,
+                seekTimeout: null,
+                autoScrollSpeed: 'medium',
+                autoPageInterval: 5,
+                autoPlayActive: false,
+                autoPlayTimer: null,
+                autoPlayFrame: null,
+                autoPlayLastTime: 0,
+                autoPlayMode: '',
+                lastVerticalPageWheelAt: 0,
+                didInit: false,
+                translateConfig: localTranslate,
+                translateProfileStorageKey: 'manga_reader_translate_profile',
+                translateProfile: (() => {
+                    const savedProfile = window.readerStorageGet('manga_reader_translate_profile');
+                    const validProfiles = Array.isArray(localTranslate.profiles)
+                        ? localTranslate.profiles.map(profile => String(profile.value || ''))
+                        : [];
+                    const defaultProfile = String(localTranslate.defaultProfile || 'gao');
+                    return validProfiles.includes(savedProfile)
+                        ? savedProfile
+                        : (validProfiles.includes(defaultProfile) ? defaultProfile : 'gao');
+                })(),
+                translateThreadCount: Math.max(1, Math.min(8, parseInt(localTranslate.concurrency, 10) || 6)),
+                isTranslating: false,
+                translateDone: 0,
+                translateFailed: 0,
+                translateTotal: localTranslate.images ? localTranslate.images.length : 0,
+                translateStatus: '',
+                translateJobId: '',
+                translateJobToken: '',
+                translateStopRequested: false,
+                translatePageCloseStopSent: false,
+                translatePageCloseHandlerInstalled: false,
+                translatePageStates: [],
+                translateDisplayed: [],
+                translateMissingToolOpened: false,
+                translatePermissionTipShown: false,
+                translatedObjectUrls: [],
+
+                init() {
+                    if (this.didInit) {
+                        return;
+                    }
+                    this.didInit = true;
+
+                    document.addEventListener('fullscreenchange', () => {
+                        this.isFullscreen = !!document.fullscreenElement;
+                    });
+
+                    this.isDark = document.documentElement.classList.contains('dark');
+                    this.loadSettings();
+                    this.normalizeModeState();
+                    this.syncReaderState(true);
+                    this.resumeTranslateAfterHttps();
+
+                    window.addEventListener('keydown', (event) => this.handleKeyboard(event));
+                    window.addEventListener('scroll', () => this.scheduleWindowScroll(), { passive: true });
+                    window.addEventListener('wheel', (event) => this.handleReaderWheel(event), { passive: false });
+                },
+
+                loadSettings() {
+                    const saved = window.readerStorageGet(settingsKey);
+                    if (!saved) {
+                        return;
+                    }
+
+                    try {
+                        const config = JSON.parse(saved);
+                        if (['vertical', 'vertical-paged', 'horizontal', 'paged'].includes(config.readingMode)) this.readingMode = config.readingMode;
+                        if (['single', 'double'].includes(config.pageMode)) this.pageMode = config.pageMode;
+                        if (['normal', 'japan'].includes(config.flipDirection)) this.flipDirection = config.flipDirection;
+                        if (config.firstPageSpread !== undefined) this.firstPageSpread = !!config.firstPageSpread;
+                        if (config.showPageNum !== undefined) this.showPageNum = !!config.showPageNum;
+                        if (['slow', 'medium', 'fast'].includes(config.autoScrollSpeed)) this.autoScrollSpeed = config.autoScrollSpeed;
+                        const savedInterval = parseInt(config.autoPageInterval, 10);
+                        if (Number.isFinite(savedInterval)) this.autoPageInterval = Math.min(10, Math.max(1, savedInterval));
+                        if (config.maxWidth) this.maxWidth = config.maxWidth;
+                        if (config.gapY) this.gapY = config.gapY;
+                        if (config.gapX) this.gapX = config.gapX;
+                        if (config.borderWidth) this.borderWidth = config.borderWidth;
+                    } catch(e) {}
+                },
+
+                getSettingsPayload() {
+                    return {
+                        readingMode: this.readingMode,
+                        pageMode: this.pageMode,
+                        flipDirection: this.flipDirection,
+                        firstPageSpread: this.firstPageSpread,
+                        showPageNum: this.showPageNum,
+                        autoScrollSpeed: this.autoScrollSpeed,
+                        autoPageInterval: this.autoPageInterval,
+                        maxWidth: this.maxWidth,
+                        gapY: this.gapY,
+                        gapX: this.gapX,
+                        borderWidth: this.borderWidth
+                    };
+                },
+
+                persistSettings() {
+                    window.readerStorageSet(settingsKey, JSON.stringify(this.getSettingsPayload()));
+                },
+
+                saveSettings() {
+                    this.persistSettings();
+                    alert('当前预览效果已保存！下次访问将自动加载。');
+                },
+
+                resetToDefault() {
+                    this.stopAutoPlay();
+                    this.readingMode = 'vertical';
+                    this.pageMode = 'single';
+                    this.flipDirection = 'normal';
+                    this.firstPageSpread = false;
+                    this.showPageNum = false;
+                    this.autoScrollSpeed = 'medium';
+                    this.autoPageInterval = 5;
+                    this.maxWidth = '800px';
+                    this.gapY = '0px';
+                    this.gapX = '0px';
+                    this.borderWidth = '1px';
+                    window.readerStorageRemove(settingsKey);
+                    this.syncReaderState(true);
+                },
+
+                saveTranslateProfile() {
+                    const validProfiles = Array.isArray(this.translateConfig.profiles)
+                        ? this.translateConfig.profiles.map(profile => String(profile.value || ''))
+                        : [];
+                    const selectedProfile = String(this.translateProfile || '');
+                    if (!validProfiles.includes(selectedProfile)) {
+                        const defaultProfile = String(this.translateConfig.defaultProfile || 'gao');
+                        this.translateProfile = validProfiles.includes(defaultProfile) ? defaultProfile : 'gao';
+                        return;
+                    }
+                    window.readerStorageSet(this.translateProfileStorageKey, selectedProfile);
+                },
+
+                translateButtonText() {
+                    const buttonText = this.translateConfig && this.translateConfig.buttonText
+                        ? this.translateConfig.buttonText
+                        : '翻译';
+                    if (this.isTranslating) {
+                        return `停止 ${this.translateDone}/${this.translateTotal}`;
+                    }
+                    if (this.translateDone > 0) {
+                        return `重新${buttonText}`;
+                    }
+                    return buttonText;
+                },
+
+                showTranslateLockTip(type) {
+                    if (type === 'vip') {
+                        this.lockModal = {
+                            open: true,
+                            type: 'vip',
+                            title: 'VIP 专属章节',
+                            msg: '此章节为 VIP 会员专属内容，开通 VIP 即可畅享全站漫画。',
+                            btnText: '开通 VIP',
+                            url: '/pc/tiaozhuang/vip.php'
+                        };
+                        return;
+                    }
+
+                    this.lockModal = {
+                        open: true,
+                        type: 'login',
+                        title: '需要登录',
+                        msg: '此功能需要登录后才能继续使用，请先登录您的账号。',
+                        btnText: '立即登录',
+                        url: '/member.php?mod=logging&action=login'
+                    };
+                },
+
+                updateTranslateStatus() {
+                    if (!this.isTranslating && this.translateDone <= 0 && this.translateFailed <= 0) {
+                        this.translateStatus = '';
+                        return;
+                    }
+
+                    if (!this.isTranslating && this.translateStopRequested) {
+                        this.translateStatus = `已停止 ${this.translateDone}/${this.translateTotal}`;
+                        return;
+                    }
+
+                    if (this.isTranslating) {
+                        this.translateStatus = `翻译进度 ${this.translateDone}/${this.translateTotal}`;
+                        return;
+                    }
+
+                    this.translateStatus = this.translateFailed > 0
+                        ? `翻译完成，失败 ${this.translateFailed} 张`
+                        : '翻译完成';
+                },
+
+                imageFileName(image) {
+                    const pageName = image && image.name ? image.name : 'page';
+                    const uploadExtension = this.translateConfig && this.translateConfig.uploadExtension
+                        ? String(this.translateConfig.uploadExtension).toLowerCase()
+                        : 'jpg';
+                    const safeExtension = ['jpg', 'jpeg', 'png', 'webp', 'bmp'].includes(uploadExtension)
+                        ? uploadExtension
+                        : 'jpg';
+                    return `${pageName}.${safeExtension === 'jpeg' ? 'jpg' : safeExtension}`;
+                },
+
+                imageElement(index) {
+                    return document.querySelector(`.manga-image[data-page-index="${index}"]`);
+                },
+
+                async fetchSourceImage(image) {
+                    const response = await fetch(image.src, {
+                        cache: 'no-store',
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) {
+                        throw new Error(`下载原图失败：${response.status}`);
+                    }
+                    return response.blob();
+                },
+
+                localTranslateApiUrl() {
+                    return this.translateConfig && this.translateConfig.apiUrl
+                        ? String(this.translateConfig.apiUrl)
+                        : '';
+                },
+
+                localTranslateChapterApiUrl() {
+                    if (this.translateConfig && this.translateConfig.chapterApiUrl) {
+                        return String(this.translateConfig.chapterApiUrl);
+                    }
+                    const apiUrl = this.localTranslateApiUrl();
+                    if (!apiUrl) {
+                        return '';
+                    }
+                    return apiUrl.replace(/\/translate\/with-form\/image(?:\/stream)?(?:\/index\.php)?\/?$/i, '/translate/chapter/index.php');
+                },
+
+                localTranslateChapterQueueEnabled() {
+                    return !!(this.translateConfig && this.translateConfig.chapterQueueEnabled && this.localTranslateChapterApiUrl());
+                },
+
+                localTranslateProtocolUrl() {
+                    return this.translateConfig && this.translateConfig.protocolUrl
+                        ? String(this.translateConfig.protocolUrl)
+                        : 'comicread://start';
+                },
+
+                localTranslateMissingToolUrl() {
+                    return this.translateConfig && this.translateConfig.missingToolUrl
+                        ? String(this.translateConfig.missingToolUrl)
+                        : '/forum.php?mod=viewthread&tid=35&extra=';
+                },
+
+                localTranslateAutoHttpsEnabled() {
+                    return !this.translateConfig || this.translateConfig.autoHttps !== false;
+                },
+
+                localTranslateNetworkCompatEnabled() {
+                    return !this.translateConfig || this.translateConfig.localNetworkCompat !== false;
+                },
+
+                localTranslateOpenMissingToolPageEnabled() {
+                    return !!(this.translateConfig && this.translateConfig.openMissingToolPage === true);
+                },
+
+                localTranslateRuntimeRetryCount() {
+                    const value = this.translateConfig ? parseInt(this.translateConfig.runtimeRetryCount, 10) : 20;
+                    return Number.isFinite(value) ? Math.max(0, Math.min(60, value)) : 20;
+                },
+
+                localTranslateRuntimeRetryWaitMs() {
+                    const value = this.translateConfig ? parseInt(this.translateConfig.runtimeRetryWaitMs, 10) : 3000;
+                    return Number.isFinite(value) ? Math.max(500, Math.min(10000, value)) : 3000;
+                },
+
+                isLocalTranslateApiUrl(url) {
+                    try {
+                        const parsed = new URL(url, window.location.href);
+                        return ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname.toLowerCase());
+                    } catch (error) {
+                        return false;
+                    }
+                },
+
+                localTranslateFetchOptions(options) {
+                    const requestOptions = Object.assign({}, options || {});
+                    if (
+                        this.localTranslateNetworkCompatEnabled()
+                        && this.isLocalTranslateApiUrl(this.localTranslateApiUrl())
+                    ) {
+                        requestOptions.targetAddressSpace = 'loopback';
+                    }
+                    return requestOptions;
+                },
+
+                async localTranslatePermissionState() {
+                    if (!this.localTranslateNetworkCompatEnabled()) {
+                        return 'disabled';
+                    }
+                    if (!window.isSecureContext) {
+                        return 'insecure';
+                    }
+                    if (!navigator.permissions || typeof navigator.permissions.query !== 'function') {
+                        return 'unsupported';
+                    }
+
+                    for (const permissionName of ['loopback-network', 'local-network-access']) {
+                        try {
+                            const permission = await navigator.permissions.query({ name: permissionName });
+                            return permission.state || 'unsupported';
+                        } catch (error) {
+                        }
+                    }
+                    return 'unsupported';
+                },
+
+                showLocalTranslatePermissionTip(state) {
+                    if (this.translatePermissionTipShown) {
+                        return;
+                    }
+                    this.translatePermissionTipShown = true;
+                    if (state === 'insecure') {
+                        alert('Chrome 只允许 HTTPS 页面请求访问本机翻译工具。请使用 HTTPS 打开当前页面后再点“翻译”。');
+                        return;
+                    }
+                    alert('Chrome 已阻止这个网站访问本机翻译工具。请点击地址栏左侧的网站图标，进入“网站设置”，把“本地网络访问”改为“允许”，刷新页面后再点“翻译”。');
+                },
+
+                ensureTranslateHttps() {
+                    const apiUrl = this.localTranslateApiUrl();
+                    if (
+                        !this.localTranslateAutoHttpsEnabled()
+                        || !this.isLocalTranslateApiUrl(apiUrl)
+                        || window.location.protocol !== 'http:'
+                        || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname.toLowerCase())
+                    ) {
+                        return true;
+                    }
+
+                    const nextUrl = new URL(window.location.href);
+                    nextUrl.protocol = 'https:';
+                    nextUrl.searchParams.set('comicread_translate', '1');
+                    window.location.replace(nextUrl.toString());
+                    return false;
+                },
+
+                resumeTranslateAfterHttps() {
+                    const currentUrl = new URL(window.location.href);
+                    if (currentUrl.searchParams.get('comicread_translate') !== '1') {
+                        return;
+                    }
+                    currentUrl.searchParams.delete('comicread_translate');
+                    window.history.replaceState(null, '', currentUrl.toString());
+                    window.setTimeout(() => this.translateCurrentChapter(), 0);
+                },
+
+                async waitLocalTranslateApi(timeoutMs) {
+                    const apiUrl = this.localTranslateApiUrl();
+                    if (!apiUrl) {
+                        return false;
+                    }
+
+                    const startedAt = Date.now();
+                    while (Date.now() - startedAt < timeoutMs) {
+                        try {
+                            const response = await fetch(apiUrl, this.localTranslateFetchOptions({
+                                method: 'OPTIONS',
+                                cache: 'no-store',
+                                mode: 'cors'
+                            }));
+                            if (response.ok || response.status === 204) {
+                                return true;
+                            }
+                        } catch (error) {
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                    }
+                    return false;
+                },
+
+                launchLocalTranslateTool() {
+                    const protocolUrl = this.localTranslateProtocolUrl();
+                    if (!protocolUrl) {
+                        return;
+                    }
+                    window.location.href = protocolUrl;
+                },
+
+                openLocalTranslateMissingToolPage() {
+                    if (this.translateMissingToolOpened) {
+                        return true;
+                    }
+                    if (!this.localTranslateOpenMissingToolPageEnabled()) {
+                        return false;
+                    }
+                    const missingToolUrl = this.localTranslateMissingToolUrl();
+                    if (!missingToolUrl) {
+                        return false;
+                    }
+                    this.translateMissingToolOpened = true;
+                    const opened = window.open(missingToolUrl, '_blank');
+                    if (opened) {
+                        opened.opener = null;
+                    } else {
+                        window.location.href = missingToolUrl;
+                    }
+                    return true;
+                },
+
+                isLocalTranslateMissingToolMessage(message) {
+                    const text = String(message || '');
+                    return [
+                        '本地翻译接口连接失败',
+                        '翻译软件根目录不存在',
+                        'Python.exe不存在',
+                        '翻译配置 JSON不存在',
+                        'Sakura 服务目录不存在',
+                        'Sakura 服务程序不存在',
+                        'Sakura 模型文件不存在'
+                    ].some(item => text.includes(item));
+                },
+
+                async ensureLocalTranslateApiReady(options) {
+                    const readyOptions = Object.assign({
+                        openMissingToolPage: true,
+                        initialWaitMs: 1200,
+                        launchWaitMs: 20000
+                    }, options || {});
+                    const apiUrl = this.localTranslateApiUrl();
+                    if (!this.isLocalTranslateApiUrl(apiUrl)) {
+                        return true;
+                    }
+                    let permissionState = await this.localTranslatePermissionState();
+                    if (permissionState === 'denied' || permissionState === 'insecure') {
+                        this.showLocalTranslatePermissionTip(permissionState);
+                        return false;
+                    }
+                    if (await this.waitLocalTranslateApi(readyOptions.initialWaitMs)) {
+                        return true;
+                    }
+
+                    permissionState = await this.localTranslatePermissionState();
+                    if (permissionState === 'denied' || permissionState === 'insecure') {
+                        this.showLocalTranslatePermissionTip(permissionState);
+                        return false;
+                    }
+
+                    this.translateStatus = '正在启动本地翻译工具';
+                    this.launchLocalTranslateTool();
+                    if (await this.waitLocalTranslateApi(readyOptions.launchWaitMs)) {
+                        return true;
+                    }
+
+                    this.translateStatus = '';
+                    permissionState = await this.localTranslatePermissionState();
+                    if (permissionState === 'denied' || permissionState === 'insecure') {
+                        this.showLocalTranslatePermissionTip(permissionState);
+                        return false;
+                    }
+                    if (!readyOptions.openMissingToolPage || !this.openLocalTranslateMissingToolPage()) {
+                        alert('没有检测到本地翻译接口。请先运行本地翻译工具的“注册.bat”，再重新点击“翻译”。');
+                    }
+                    return false;
+                },
+
+                localTranslateRuntimeError(message) {
+                    const nextError = new Error(message || '本地翻译接口临时断开。');
+                    nextError.localTranslateRuntimeFailure = true;
+                    nextError.localTranslateMissingTool = false;
+                    return nextError;
+                },
+
+                async recoverLocalTranslateApi(attempt) {
+                    if (!this.isLocalTranslateApiUrl(this.localTranslateApiUrl())) {
+                        return false;
+                    }
+                    const retryCount = this.localTranslateRuntimeRetryCount();
+                    const waitMs = this.localTranslateRuntimeRetryWaitMs();
+                    this.translateStatus = retryCount > 0
+                        ? `本地翻译接口断开，正在重试 ${attempt}/${retryCount}`
+                        : '本地翻译接口断开';
+                    if (await this.waitLocalTranslateApi(waitMs)) {
+                        return true;
+                    }
+                    this.launchLocalTranslateTool();
+                    return await this.waitLocalTranslateApi(waitMs);
+                },
+
+                async fetchLocalTranslateWithRetry(url, options, label) {
+                    const retryCount = this.localTranslateRuntimeRetryCount();
+                    const shouldRetry = this.isLocalTranslateApiUrl(url);
+                    let lastError = null;
+                    for (let attempt = 0; attempt <= retryCount; attempt += 1) {
+                        let response = null;
+                        try {
+                            response = await fetch(url, this.localTranslateFetchOptions(options));
+                        } catch (error) {
+                            const permissionState = await this.localTranslatePermissionState();
+                            if (permissionState === 'denied' || permissionState === 'insecure') {
+                                const nextError = new Error('本地翻译接口连接失败。');
+                                nextError.localTranslatePermission = true;
+                                nextError.localTranslatePermissionState = permissionState;
+                                nextError.localTranslateMissingTool = false;
+                                throw nextError;
+                            }
+                            lastError = this.localTranslateRuntimeError(`${label || '本地翻译接口'}连接失败。`);
+                        }
+
+                        if (response && (response.ok || response.status < 500 || !shouldRetry || attempt >= retryCount)) {
+                            return response;
+                        }
+                        if (response) {
+                            lastError = this.localTranslateRuntimeError(`${label || '本地翻译接口'}暂时失败：${response.status}`);
+                        }
+                        if (!shouldRetry || attempt >= retryCount || !(await this.recoverLocalTranslateApi(attempt + 1))) {
+                            break;
+                        }
+                    }
+                    throw lastError || this.localTranslateRuntimeError(`${label || '本地翻译接口'}连接失败。`);
+                },
+
+                newChapterJobToken() {
+                    const bytes = new Uint8Array(32);
+                    if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+                        window.crypto.getRandomValues(bytes);
+                    } else {
+                        for (let index = 0; index < bytes.length; index += 1) {
+                            bytes[index] = Math.floor(Math.random() * 256);
+                        }
+                    }
+                    return Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+                },
+
+                chapterActionUrl(action, params) {
+                    const url = new URL(this.localTranslateChapterApiUrl(), window.location.href);
+                    url.searchParams.set('action', action);
+                    Object.entries(params || {}).forEach(([key, value]) => {
+                        if (value !== undefined && value !== null) {
+                            url.searchParams.set(key, String(value));
+                        }
+                    });
+                    return url.toString();
+                },
+
+                async requestChapterJson(action, options) {
+                    const requestOptions = Object.assign({
+                        method: 'POST',
+                        cache: 'no-store',
+                        credentials: 'same-origin'
+                    }, options || {});
+                    const params = requestOptions.params || {};
+                    delete requestOptions.params;
+                    const requestUrl = this.chapterActionUrl(action, params);
+                    const response = await this.fetchLocalTranslateWithRetry(requestUrl, requestOptions, '本地章节接口');
+                    const text = await response.text();
+                    let data = null;
+                    try {
+                        data = text ? JSON.parse(text) : {};
+                    } catch (error) {
+                        data = { ok: false, error: text || `本地章节接口返回异常：${response.status}` };
+                    }
+                    if (!response.ok || data.ok === false) {
+                        const message = data && data.error ? data.error : `本地章节接口失败：${response.status}`;
+                        const nextError = new Error(message);
+                        nextError.localTranslateRuntimeFailure = response.status >= 500 && this.isLocalTranslateApiUrl(requestUrl);
+                        nextError.localTranslateMissingTool = !nextError.localTranslateRuntimeFailure && this.isLocalTranslateMissingToolMessage(message);
+                        throw nextError;
+                    }
+                    return data;
+                },
+
+                async startChapterTranslateJob(images) {
+                    this.translateJobToken = this.newChapterJobToken();
+                    const form = new FormData();
+                    form.append('job_token', this.translateJobToken);
+                    form.append('manga_title', this.translateConfig.mangaTitle || document.title || '');
+                    form.append('chapter_title', this.translateConfig.chapterTitle || this.translateConfig.zjid || '');
+                    form.append('zjid', this.translateConfig.zjid || '');
+                    form.append('kuid', this.translateConfig.kuid || '');
+                    form.append('total', images.length);
+                    form.append('force_retry', this.translateConfig.reuseCache ? '0' : '1');
+                    form.append('translate_profile', this.translateProfile || this.translateConfig.defaultProfile || 'gao');
+                    return this.requestChapterJson('start', { body: form });
+                },
+
+                async submitChapterImage(jobId, image, index) {
+                    const sourceBlob = await this.fetchSourceImage(image);
+                    const form = new FormData();
+                    form.append('job_id', jobId);
+                    form.append('job_token', this.translateJobToken);
+                    form.append('page_index', index);
+                    form.append('page_name', image && image.name ? image.name : String(index + 1));
+                    form.append('image', sourceBlob, this.imageFileName(image));
+                    return this.requestChapterJson('submit', { body: form });
+                },
+
+                async markChapterImageFailed(jobId, image, index, error) {
+                    const form = new FormData();
+                    form.append('job_id', jobId);
+                    form.append('job_token', this.translateJobToken);
+                    form.append('page_index', index);
+                    form.append('page_name', image && image.name ? image.name : String(index + 1));
+                    form.append('error', error && error.message ? error.message : String(error || '提交原图失败'));
+                    return this.requestChapterJson('fail', { body: form });
+                },
+
+                async runChapterTranslateWorker(jobId) {
+                    const form = new FormData();
+                    form.append('job_id', jobId);
+                    form.append('job_token', this.translateJobToken);
+                    return this.requestChapterJson('run', { body: form });
+                },
+
+                async stopTranslateCurrentChapter() {
+                    this.translateStopRequested = true;
+                    this.translateStatus = '正在停止翻译任务';
+                    if (!this.translateJobId || !this.localTranslateChapterQueueEnabled()) {
+                        return;
+                    }
+                    const form = new FormData();
+                    form.append('job_id', this.translateJobId);
+                    form.append('job_token', this.translateJobToken);
+                    try {
+                        await this.requestChapterJson('stop', { body: form });
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
+
+                stopTranslateForPageClose() {
+                    if (
+                        this.translatePageCloseStopSent
+                        || !this.translateConfig
+                        || this.translateConfig.stopOnPageClose === false
+                        || !this.isTranslating
+                        || !this.translateJobId
+                        || !this.localTranslateChapterQueueEnabled()
+                    ) {
+                        return;
+                    }
+
+                    this.translatePageCloseStopSent = true;
+                    this.translateStopRequested = true;
+                    const form = new FormData();
+                    form.append('job_id', this.translateJobId);
+                    form.append('job_token', this.translateJobToken);
+                    try {
+                        void fetch(
+                            this.chapterActionUrl('stop'),
+                            this.localTranslateFetchOptions({
+                                method: 'POST',
+                                body: form,
+                                cache: 'no-store',
+                                credentials: 'same-origin',
+                                keepalive: true
+                            })
+                        ).catch(() => {});
+                    } catch (error) {
+                    }
+                },
+
+                setupTranslatePageCloseStop() {
+                    if (this.translatePageCloseHandlerInstalled) {
+                        return;
+                    }
+                    this.translatePageCloseHandlerInstalled = true;
+                    const stopCurrentPageJob = () => this.stopTranslateForPageClose();
+                    window.addEventListener('pagehide', stopCurrentPageJob);
+                    window.addEventListener('beforeunload', stopCurrentPageJob);
+                },
+
+                async fetchChapterStatus(jobId) {
+                    return this.requestChapterJson('status', {
+                        method: 'GET',
+                        params: { job_id: jobId, job_token: this.translateJobToken }
+                    });
+                },
+
+                async fetchChapterResult(jobId, index) {
+                    const requestUrl = this.chapterActionUrl('result', {
+                        job_id: jobId,
+                        job_token: this.translateJobToken,
+                        page_index: index
+                    });
+                    const response = await this.fetchLocalTranslateWithRetry(
+                        requestUrl,
+                        {
+                            method: 'GET',
+                            cache: 'no-store',
+                            credentials: 'same-origin'
+                        },
+                        '读取译图'
+                    );
+                    if (!response.ok) {
+                        const text = await response.text();
+                        const nextError = new Error(text || `读取译图失败：${response.status}`);
+                        nextError.localTranslateRuntimeFailure = response.status >= 500 && this.isLocalTranslateApiUrl(requestUrl);
+                        throw nextError;
+                    }
+                    return response.blob();
+                },
+
+                applyTranslatedBlob(index, translatedBlob) {
+                    const nextUrl = URL.createObjectURL(translatedBlob);
+                    const img = this.imageElement(index);
+                    if (!img) {
+                        URL.revokeObjectURL(nextUrl);
+                        return;
+                    }
+                    if (!img.dataset.originalSrc) {
+                        img.dataset.originalSrc = img.src;
+                    }
+                    if (this.translatedObjectUrls[index]) {
+                        URL.revokeObjectURL(this.translatedObjectUrls[index]);
+                    }
+                    this.translatedObjectUrls[index] = nextUrl;
+                    img.src = nextUrl;
+                },
+
+                sleepTranslate(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                },
+
+                async uploadTranslateImage(image, sourceBlob) {
+                    const form = new FormData();
+                    form.append('image', sourceBlob, this.imageFileName(image));
+                    form.append('manga_title', this.translateConfig.mangaTitle || document.title || '');
+                    form.append('chapter_title', this.translateConfig.chapterTitle || this.translateConfig.zjid || '');
+                    form.append('page_name', image && image.name ? image.name : '');
+                    form.append('zjid', this.translateConfig.zjid || '');
+                    form.append('kuid', this.translateConfig.kuid || '');
+                    form.append('force_retry', this.translateConfig.reuseCache ? '0' : '1');
+                    form.append('translate_profile', this.translateProfile || this.translateConfig.defaultProfile || 'gao');
+
+                    const response = await this.fetchLocalTranslateWithRetry(
+                        this.translateConfig.apiUrl,
+                        {
+                            method: 'POST',
+                            body: form,
+                            cache: 'no-store',
+                            credentials: 'same-origin'
+                        },
+                        '本地翻译接口'
+                    );
+                    if (!response.ok) {
+                        const text = await response.text();
+                        const message = text.trim() || `本地翻译失败：${response.status}`;
+                        const nextError = new Error(message);
+                        nextError.localTranslateRuntimeFailure = response.status >= 500 && this.isLocalTranslateApiUrl(this.translateConfig.apiUrl);
+                        nextError.localTranslateMissingTool = !nextError.localTranslateRuntimeFailure && this.isLocalTranslateMissingToolMessage(message);
+                        throw nextError;
+                    }
+                    return response.blob();
+                },
+
+                async translateOneImage(image, index) {
+                    try {
+                        const sourceBlob = await this.fetchSourceImage(image);
+                        const translatedBlob = await this.uploadTranslateImage(image, sourceBlob);
+                        const nextUrl = URL.createObjectURL(translatedBlob);
+                        const img = this.imageElement(index);
+                        if (img) {
+                            if (!img.dataset.originalSrc) {
+                                img.dataset.originalSrc = img.src;
+                            }
+                            if (this.translatedObjectUrls[index]) {
+                                URL.revokeObjectURL(this.translatedObjectUrls[index]);
+                            }
+                            this.translatedObjectUrls[index] = nextUrl;
+                            img.src = nextUrl;
+                        }
+                    } catch (error) {
+                        this.translateFailed += 1;
+                        if (error && error.localTranslatePermission) {
+                            this.showLocalTranslatePermissionTip(error.localTranslatePermissionState);
+                        } else if (error && error.localTranslateRuntimeFailure) {
+                            this.translateStatus = '本地翻译接口断开，请稍后重试或重新启动本地接口';
+                        } else if (error && error.localTranslateMissingTool) {
+                            this.openLocalTranslateMissingToolPage();
+                        }
+                        console.error(error);
+                    } finally {
+                        this.translateDone += 1;
+                        this.updateTranslateStatus();
+                    }
+                },
+
+                async translateCurrentChapterQueued(images) {
+                    const total = images.length;
+                    const startInfo = await this.startChapterTranslateJob(images);
+                    const jobId = startInfo.jobId;
+                    this.translateJobId = jobId;
+                    this.translateStopRequested = false;
+                    this.translatePageCloseStopSent = false;
+                    this.setupTranslatePageCloseStop();
+                    this.translatePageStates = Array.from({ length: total }, () => 'waiting');
+                    this.translateDisplayed = Array.from({ length: total }, () => false);
+
+                    const prefetchWindow = Math.max(1, Math.min(500, parseInt(this.translateConfig.prefetchWindow, 10) || 30));
+                    const streamEnabled = this.translateConfig.streamEnabled !== false;
+                    const streamInitialPages = Math.max(1, Math.min(
+                        total,
+                        prefetchWindow,
+                        parseInt(this.translateConfig.streamInitialPages, 10) || 1
+                    ));
+                    const pollIntervalMs = Math.max(500, Math.min(10000, parseInt(this.translateConfig.pollIntervalMs, 10) || 1000));
+                    const downloadConcurrency = Math.max(1, Math.min(8, parseInt(this.translateThreadCount, 10) || 6));
+                    let submitCursor = 0;
+                    let submitting = null;
+
+                    const submitRange = async (fromIndex, toIndex) => {
+                        let nextIndex = fromIndex;
+                        const workers = Array.from({ length: Math.min(downloadConcurrency, Math.max(1, toIndex - fromIndex)) }, async () => {
+                            while (!this.translateStopRequested && nextIndex < toIndex) {
+                                const index = nextIndex;
+                                nextIndex += 1;
+                                this.translatePageStates[index] = 'uploading';
+                                try {
+                                    await this.submitChapterImage(jobId, images[index], index);
+                                    if (this.translatePageStates[index] !== 'done') {
+                                        this.translatePageStates[index] = 'queued';
+                                    }
+                                } catch (error) {
+                                    this.translatePageStates[index] = 'error';
+                                    try {
+                                        await this.markChapterImageFailed(jobId, images[index], index, error);
+                                    } catch (markError) {
+                                        console.error(markError);
+                                    }
+                                    console.error(error);
+                                }
+                            }
+                        });
+                        await Promise.all(workers);
+                    };
+
+                    const pumpSubmissions = () => {
+                        if (this.translateStopRequested || submitting) {
+                            return;
+                        }
+                        const wanted = Math.min(total, this.translateDone + prefetchWindow);
+                        if (wanted <= submitCursor) {
+                            return;
+                        }
+                        const fromIndex = submitCursor;
+                        submitCursor = wanted;
+                        submitting = submitRange(fromIndex, wanted).finally(() => {
+                            submitting = null;
+                            pumpSubmissions();
+                        });
+                    };
+
+                    const firstTarget = Math.min(total, streamEnabled ? streamInitialPages : prefetchWindow);
+                    this.translateStatus = streamEnabled
+                        ? `正在准备流水线 0/${firstTarget}`
+                        : `正在预下载 0/${firstTarget}`;
+                    submitCursor = firstTarget;
+                    await submitRange(0, firstTarget);
+                    if (this.translateStopRequested) {
+                        return;
+                    }
+
+                    await this.runChapterTranslateWorker(jobId);
+                    this.translateStatus = `翻译进度 0/${total}`;
+                    pumpSubmissions();
+
+                    while (!this.translateStopRequested) {
+                        const status = await this.fetchChapterStatus(jobId);
+                        const pages = Array.isArray(status.pages) ? status.pages : [];
+                        for (const page of pages) {
+                            const index = parseInt(page.index, 10);
+                            if (!Number.isInteger(index) || index < 0 || index >= total) {
+                                continue;
+                            }
+                            if (page.status === 'done' && !this.translateDisplayed[index]) {
+                                try {
+                                    const blob = await this.fetchChapterResult(jobId, index);
+                                    this.applyTranslatedBlob(index, blob);
+                                    this.translateDisplayed[index] = true;
+                                    this.translatePageStates[index] = 'done';
+                                } catch (error) {
+                                    this.translatePageStates[index] = 'error';
+                                    console.error(error);
+                                }
+                            } else if (page.status === 'error') {
+                                this.translatePageStates[index] = 'error';
+                            } else if (page.status) {
+                                this.translatePageStates[index] = page.status;
+                            }
+                        }
+
+                        const doneCount = this.translatePageStates.filter(state => state === 'done').length;
+                        const failedCount = this.translatePageStates.filter(state => state === 'error').length;
+                        this.translateDone = doneCount + failedCount;
+                        this.translateFailed = failedCount;
+                        const submittedCount = status.summary && status.summary.submitted ? parseInt(status.summary.submitted, 10) || 0 : 0;
+                        this.translateStatus = this.translateStopRequested
+                            ? '正在停止翻译任务'
+                            : `翻译进度 ${this.translateDone}/${total}，已预下载 ${Math.max(submittedCount, submitCursor)}/${total}`;
+
+                        pumpSubmissions();
+
+                        if (this.translateDone >= total || ['done', 'stopped', 'error'].includes(status.status)) {
+                            break;
+                        }
+                        await this.sleepTranslate(pollIntervalMs);
+                    }
+
+                    if (submitting) {
+                        await submitting;
+                    }
+                },
+
+                async translateCurrentChapter() {
+                    if (this.isTranslating) {
+                        return;
+                    }
+                    this.translateMissingToolOpened = false;
+                    this.translatePermissionTipShown = false;
+                    if (this.translateConfig && this.translateConfig.requiresVip && !this.translateConfig.canTranslate) {
+                        this.showTranslateLockTip(this.translateConfig.lockType || 'vip');
+                        return;
+                    }
+                    if (!this.translateConfig || !this.translateConfig.chapterModeEnabled) {
+                        alert('本地翻译工具里没有启用阅读页“翻译”整话模式。');
+                        return;
+                    }
+
+                    const images = Array.isArray(this.translateConfig.images) ? this.translateConfig.images : [];
+                    if (!this.translateConfig.enabled || images.length <= 0) {
+                        alert('当前话没有可翻译的图片，或本地翻译接口未启用。');
+                        return;
+                    }
+
+                    if (!this.ensureTranslateHttps()) {
+                        return;
+                    }
+
+                    if (!(await this.ensureLocalTranslateApiReady())) {
+                        return;
+                    }
+
+                    this.isTranslating = true;
+                    this.translateJobId = '';
+                    this.translateJobToken = '';
+                    this.translateStopRequested = false;
+                    this.translatePageCloseStopSent = false;
+                    this.translateDone = 0;
+                    this.translateFailed = 0;
+                    this.translateTotal = images.length;
+                    this.updateTranslateStatus();
+
+                    if (this.localTranslateChapterQueueEnabled()) {
+                        try {
+                            await this.translateCurrentChapterQueued(images);
+                        } catch (error) {
+                            this.translateFailed += 1;
+                            if (error && error.localTranslatePermission) {
+                                this.showLocalTranslatePermissionTip(error.localTranslatePermissionState);
+                            } else if (error && error.localTranslateRuntimeFailure) {
+                                this.translateStatus = '本地翻译接口断开，请稍后重试或重新启动本地接口';
+                            } else if (error && error.localTranslateMissingTool) {
+                                this.openLocalTranslateMissingToolPage();
+                            }
+                            console.error(error);
+                        } finally {
+                            this.isTranslating = false;
+                            this.updateTranslateStatus();
+                        }
+                        return;
+                    }
+
+                    let nextIndex = 0;
+                    const workerCount = 1;
+                    const runWorker = async () => {
+                        while (!this.translateStopRequested && nextIndex < images.length) {
+                            const index = nextIndex;
+                            nextIndex += 1;
+                            await this.translateOneImage(images[index], index);
+                        }
+                    };
+
+                    try {
+                        await Promise.all(Array.from({ length: workerCount }, runWorker));
+                    } finally {
+                        this.isTranslating = false;
+                        this.updateTranslateStatus();
+                    }
+                },
+
+                toggleAutoPlay() {
+                    if (this.autoPlayActive) {
+                        this.stopAutoPlay();
+                    } else {
+                        this.startAutoPlay();
+                    }
+                },
+
+                startAutoPlay() {
+                    if (imageCount < 1) {
+                        return;
+                    }
+                    if (this.isAutoPlayAtEnd()) {
+                        this.scrollToPage(1, true);
+                    }
+                    this.autoPlayActive = true;
+                    this.$nextTick(() => this.restartAutoPlayMotion());
+                },
+
+                stopAutoPlay() {
+                    this.autoPlayActive = false;
+                    this.clearAutoPlayMotion();
+                },
+
+                clearAutoPlayMotion() {
+                    if (this.autoPlayTimer !== null) {
+                        clearTimeout(this.autoPlayTimer);
+                        this.autoPlayTimer = null;
+                    }
+                    if (this.autoPlayFrame !== null) {
+                        cancelAnimationFrame(this.autoPlayFrame);
+                        this.autoPlayFrame = null;
+                    }
+                    this.autoPlayLastTime = 0;
+                },
+
+                restartAutoPlayMotion() {
+                    this.clearAutoPlayMotion();
+                    if (!this.autoPlayActive) {
+                        return;
+                    }
+
+                    this.autoPlayMode = this.readingMode;
+                    if (this.readingMode === 'vertical' || this.readingMode === 'horizontal') {
+                        this.autoPlayFrame = requestAnimationFrame((timestamp) => this.autoPlayScrollStep(timestamp));
+                        return;
+                    }
+
+                    this.autoPlayTimer = setTimeout(() => this.autoPlayNextPage(), this.autoPageInterval * 1000);
+                },
+
+                autoPlayScrollStep(timestamp) {
+                    this.autoPlayFrame = null;
+                    if (!this.autoPlayActive) {
+                        return;
+                    }
+                    if (this.readingMode !== this.autoPlayMode || (this.readingMode !== 'vertical' && this.readingMode !== 'horizontal')) {
+                        this.restartAutoPlayMotion();
+                        return;
+                    }
+
+                    if (!this.autoPlayLastTime) {
+                        this.autoPlayLastTime = timestamp;
+                    }
+                    const elapsed = Math.min(100, Math.max(0, timestamp - this.autoPlayLastTime));
+                    this.autoPlayLastTime = timestamp;
+                    const secondsPerScreen = this.autoScrollSpeed === 'slow' ? 10 : (this.autoScrollSpeed === 'fast' ? 2.5 : 5);
+
+                    let before = 0;
+                    let after = 0;
+                    if (this.readingMode === 'vertical') {
+                        const distance = Math.max(10, window.innerHeight / secondsPerScreen) * (elapsed / 1000);
+                        before = window.scrollY || document.documentElement.scrollTop || 0;
+                        window.scrollTo(0, before + distance);
+                        after = window.scrollY || document.documentElement.scrollTop || 0;
+                    } else {
+                        const container = document.getElementById('image-container');
+                        if (!container) {
+                            this.stopAutoPlay();
+                            return;
+                        }
+                        const distance = Math.max(10, container.clientWidth / secondsPerScreen) * (elapsed / 1000);
+                        before = container.scrollLeft;
+                        container.scrollLeft += this.flipDirection === 'japan' ? -distance : distance;
+                        after = container.scrollLeft;
+                    }
+
+                    if (elapsed > 0 && Math.abs(after - before) < 0.01) {
+                        this.stopAutoPlay();
+                        return;
+                    }
+
+                    this.autoPlayFrame = requestAnimationFrame((nextTimestamp) => this.autoPlayScrollStep(nextTimestamp));
+                },
+
+                autoPlayNextPage() {
+                    this.autoPlayTimer = null;
+                    if (!this.autoPlayActive) {
+                        return;
+                    }
+                    if (this.readingMode !== this.autoPlayMode || (this.readingMode !== 'paged' && this.readingMode !== 'vertical-paged')) {
+                        this.restartAutoPlayMotion();
+                        return;
+                    }
+
+                    if (this.currentPage >= this.totalPages) {
+                        this.stopAutoPlay();
+                        return;
+                    }
+
+                    const nextPage = this.currentPage + 1;
+                    this.scrollToPage(nextPage);
+                    if (nextPage >= this.totalPages) {
+                        this.stopAutoPlay();
+                        return;
+                    }
+                    this.restartAutoPlayMotion();
+                },
+
+                isAutoPlayAtEnd() {
+                    if (this.readingMode === 'paged' || this.readingMode === 'vertical-paged') {
+                        return this.currentPage >= this.totalPages;
+                    }
+                    if (this.readingMode === 'vertical') {
+                        const documentHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+                        const maxScrollTop = Math.max(0, documentHeight - window.innerHeight);
+                        const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+                        return maxScrollTop > 0 && scrollTop >= maxScrollTop - 1;
+                    }
+                    if (this.readingMode === 'horizontal') {
+                        const container = document.getElementById('image-container');
+                        if (!container) {
+                            return false;
+                        }
+                        const before = container.scrollLeft;
+                        container.scrollLeft += this.flipDirection === 'japan' ? -1 : 1;
+                        const moved = Math.abs(container.scrollLeft - before) >= 0.01;
+                        container.scrollLeft = before;
+                        return !moved && container.scrollWidth > container.clientWidth;
+                    }
+                    return false;
+                },
+
+                setAutoScrollSpeed(speed) {
+                    if (!['slow', 'medium', 'fast'].includes(speed)) {
+                        return;
+                    }
+                    this.autoScrollSpeed = speed;
+                    this.persistSettings();
+                },
+
+                setAutoPageInterval(seconds) {
+                    const parsed = parseInt(seconds, 10);
+                    if (!Number.isFinite(parsed)) {
+                        return;
+                    }
+                    this.autoPageInterval = Math.min(10, Math.max(1, parsed));
+                    this.persistSettings();
+                    if (this.autoPlayActive && (this.readingMode === 'paged' || this.readingMode === 'vertical-paged')) {
+                        this.restartAutoPlayMotion();
+                    }
+                },
+
+                setOption(key, value) {
+                    this[key] = value;
+                    this.persistSettings();
+                },
+
+                setReadingMode(mode) {
+                    if (!['vertical', 'vertical-paged', 'horizontal', 'paged'].includes(mode)) {
+                        return;
+                    }
+                    this.readingMode = mode;
+                    this.normalizeModeState();
+                    this.syncReaderState(true);
+                    this.persistSettings();
+                    if (this.autoPlayActive) {
+                        this.$nextTick(() => this.restartAutoPlayMotion());
+                    }
+                },
+
+                setPageMode(mode) {
+                    this.pageMode = mode;
+                    this.normalizeModeState();
+                    this.syncReaderState(true);
+                    this.persistSettings();
+                    if (this.autoPlayActive) {
+                        this.$nextTick(() => this.restartAutoPlayMotion());
+                    }
+                },
+
+                setFlipDirection(direction) {
+                    this.flipDirection = direction;
+                    this.syncReaderState(true);
+                    this.persistSettings();
+                    if (this.autoPlayActive) {
+                        this.$nextTick(() => this.restartAutoPlayMotion());
+                    }
+                },
+
+                setFirstPageSpread(enabled) {
+                    this.firstPageSpread = !!enabled;
+                    this.syncReaderState(true);
+                    this.persistSettings();
+                    if (this.autoPlayActive) {
+                        this.$nextTick(() => this.restartAutoPlayMotion());
+                    }
+                },
+
+                normalizeModeState() {
+                    if (this.readingMode !== 'vertical') {
+                        this.maxWidth = '100%';
+                    } else if (this.maxWidth === '100%') {
+                        this.maxWidth = '800px';
+                    }
+
+                    if (this.readingMode === 'horizontal') {
+                        this.pageMode = 'single';
+                    }
+                },
+
+                hasEndPanel() {
+                    return true;
+                },
+
+                getLinearSlotCount() {
+                    return Math.max(1, imageCount + (this.hasEndPanel() ? 1 : 0));
+                },
+
+                getPagedGroups() {
+                    const groups = [];
+
+                    if (this.pageMode === 'double' && this.readingMode !== 'vertical-paged') {
+                        let startIndex = 0;
+                        if (this.firstPageSpread && imageCount > 0) {
+                            groups.push({ type: 'images', images: [0] });
+                            startIndex = 1;
+                        }
+
+                        for (let index = startIndex; index < imageCount; index += 2) {
+                            const images = [index];
+                            if (index + 1 < imageCount) {
+                                images.push(index + 1);
+                            }
+                            groups.push({ type: 'images', images });
+                        }
+                    } else {
+                        for (let index = 0; index < imageCount; index++) {
+                            groups.push({ type: 'images', images: [index] });
+                        }
+                    }
+
+                    if (this.hasEndPanel()) {
+                        groups.push({ type: 'end', images: [] });
+                    }
+
+                    return groups.length ? groups : [{ type: 'end', images: [] }];
+                },
+
+                getTotalViews() {
+                    return this.readingMode === 'paged' || this.readingMode === 'vertical-paged'
+                        ? this.getPagedGroups().length
+                        : this.getLinearSlotCount();
+                },
+
+                syncReaderState(resetToFirst) {
+                    this.totalPages = this.getTotalViews();
+                    if (resetToFirst) {
+                        this.currentPage = 1;
+                    }
+                    this.currentPage = Math.max(1, Math.min(this.currentPage, this.totalPages));
+
+                    if (resetToFirst) {
+                        this.$nextTick(() => this.scrollToPage(1, true));
+                    }
+                },
+
+                getActivePagedGroup() {
+                    const groups = this.getPagedGroups();
+                    return groups[Math.max(0, Math.min(this.currentPage - 1, groups.length - 1))] || groups[0];
+                },
+
+                isImageVisible(index) {
+                    if (this.readingMode !== 'paged' && this.readingMode !== 'vertical-paged') {
+                        return true;
+                    }
+
+                    const group = this.getActivePagedGroup();
+                    return group.type === 'images' && group.images.includes(index);
+                },
+
+                isEndPanelVisible() {
+                    if (this.readingMode !== 'paged' && this.readingMode !== 'vertical-paged') {
+                        return true;
+                    }
+
+                    return this.getActivePagedGroup().type === 'end';
+                },
+
+                toggleDark() {
+                    this.isDark = !this.isDark;
+                    const nextTheme = this.isDark ? 'dark' : 'light';
+                    window.applyColorTheme(nextTheme);
+                    window.readerStorageSet('color-theme', nextTheme);
+                },
+
+                toggleFullscreen() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                },
+
+                isInputTarget(event) {
+                    const target = event.target;
+                    if (!target) {
+                        return false;
+                    }
+                    const tagName = (target.tagName || '').toLowerCase();
+                    return tagName === 'input'
+                        || tagName === 'textarea'
+                        || tagName === 'select'
+                        || target.isContentEditable;
+                },
+
+                isModalOpen() {
+                    return this.openCatalog || this.showSettings || this.showImageSettings;
+                },
+
+                handleKeyboard(event) {
+                    if (event.altKey || event.ctrlKey || event.metaKey || this.isInputTarget(event)) {
+                        return;
+                    }
+
+                    if (event.key === 'Escape') {
+                        this.openCatalog = false;
+                        this.showSettings = false;
+                        this.showImageSettings = false;
+                        this.showNav = false;
+                        return;
+                    }
+
+                    if (this.isModalOpen()) {
+                        return;
+                    }
+
+                    if (this.readingMode === 'vertical') {
+                        if (event.key === 'ArrowLeft') {
+                            event.preventDefault();
+                            this.goToPrevChapter();
+                        } else if (event.key === 'ArrowRight') {
+                            event.preventDefault();
+                            this.goToNextChapter();
+                        }
+                        return;
+                    }
+
+                    if (this.readingMode === 'vertical-paged') {
+                        if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+                            event.preventDefault();
+                            this.nextPage();
+                        } else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+                            event.preventDefault();
+                            this.prevPage();
+                        }
+                        return;
+                    }
+
+                    const horizontalKey = event.key === 'ArrowLeft' || event.key === 'ArrowRight';
+                    const verticalKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+                    if (!horizontalKey && !verticalKey) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    if (verticalKey) {
+                        event.key === 'ArrowDown' ? this.nextPage() : this.prevPage();
+                        return;
+                    }
+
+                    const normalNext = event.key === 'ArrowRight';
+                    const goNext = this.flipDirection === 'japan' ? !normalNext : normalNext;
+                    goNext ? this.nextPage() : this.prevPage();
+                },
+
+                handleReaderWheel(event) {
+                    if (this.readingMode !== 'vertical-paged' || this.isModalOpen() || event.ctrlKey) {
+                        return;
+                    }
+                    const target = event.target;
+                    if (this.isInputTarget(event) || (target && target.closest && target.closest('.reader-top-tools, .reader-bottom-nav, button, a'))) {
+                        return;
+                    }
+
+                    const verticalDistance = Math.abs(event.deltaY);
+                    if (verticalDistance < 8 || verticalDistance <= Math.abs(event.deltaX)) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const now = Date.now();
+                    if (now - this.lastVerticalPageWheelAt < 450) {
+                        return;
+                    }
+                    this.lastVerticalPageWheelAt = now;
+                    event.deltaY > 0 ? this.nextPage() : this.prevPage();
+                },
+
+                scheduleWindowScroll() {
+                    if (this.readingMode !== 'vertical' || this.isSeeking || windowScrollTimer !== null) {
+                        return;
+                    }
+                    // 合并连续滚动事件，停止滚动后仍会检查最后的位置。
+                    windowScrollTimer = window.setTimeout(() => {
+                        windowScrollTimer = null;
+                        this.handleWindowScroll();
+                    }, 50);
+                },
+
+                handleWindowScroll() {
+                    if (this.readingMode !== 'vertical' || this.isSeeking) {
+                        return;
+                    }
+
+                    const wrappers = this.getReaderWrappers();
+                    if (!wrappers.length) {
+                        return;
+                    }
+
+                    const center = window.innerHeight / 2;
+                    const index = this.findVerticalReaderIndex(wrappers, center);
+                    if (index >= 0) {
+                        this.currentPage = Math.min(index + 1, this.totalPages);
+                    }
+                },
+
+                getReaderWrappers() {
+                    if (readerWrappers === null) {
+                        const container = document.getElementById('image-container');
+                        if (!container) return [];
+                        readerWrappers = Array.from(container.querySelectorAll('.image-wrapper'));
+                    }
+
+                    return readerWrappers;
+                },
+
+                getVisibleWrappers() {
+                    // 分页模式会隐藏部分图片；这里保留原来的可见性判断。
+                    return this.getReaderWrappers().filter((wrapper) => {
+                        return wrapper.offsetParent !== null;
+                    });
+                },
+
+                findVerticalReaderIndex(wrappers, center) {
+                    // 图片按文档顺序排列，使用底部位置二分查找，避免每次滚动从第一页遍历。
+                    let low = 0;
+                    let high = wrappers.length - 1;
+                    while (low < high) {
+                        const middle = low + Math.floor((high - low) / 2);
+                        if (wrappers[middle].getBoundingClientRect().bottom >= center) {
+                            high = middle;
+                        } else {
+                            low = middle + 1;
+                        }
+                    }
+
+                    const rect = wrappers[low].getBoundingClientRect();
+                    return rect.top <= center && rect.bottom >= center ? low : -1;
+                },
+
+                findHorizontalReaderIndex(wrappers, center, descending) {
+                    // 横向阅读时，direction: rtl 会让图片中心点按倒序排列。
+                    let low = 0;
+                    let high = wrappers.length - 1;
+                    while (low < high) {
+                        const middle = low + Math.floor((high - low) / 2);
+                        const middleRect = wrappers[middle].getBoundingClientRect();
+                        const itemCenter = middleRect.left + middleRect.width / 2;
+                        if (descending ? itemCenter <= center : itemCenter >= center) {
+                            high = middle;
+                        } else {
+                            low = middle + 1;
+                        }
+                    }
+
+                    const candidates = [low - 1, low, low + 1].filter((index) => index >= 0 && index < wrappers.length);
+                    let bestIndex = candidates[0] || 0;
+                    let bestDistance = Infinity;
+                    candidates.forEach((index) => {
+                        const rect = wrappers[index].getBoundingClientRect();
+                        const distance = Math.abs((rect.left + rect.width / 2) - center);
+                        if (distance < bestDistance) {
+                            bestDistance = distance;
+                            bestIndex = index;
+                        }
+                    });
+                    return bestIndex;
+                },
+
+                scrollToPage(page, instant) {
+                    let targetPage = parseInt(page, 10);
+                    if (Number.isNaN(targetPage)) targetPage = 1;
+                    targetPage = Math.max(1, Math.min(targetPage, this.totalPages));
+
+                    if (this.seekTimeout) {
+                        clearTimeout(this.seekTimeout);
+                    }
+
+                    this.isSeeking = true;
+                    this.currentPage = targetPage;
+
+                    this.$nextTick(() => {
+                        if (this.readingMode === 'paged' || this.readingMode === 'vertical-paged') {
+                            this.isSeeking = false;
+                            return;
+                        }
+
+                        const wrappers = this.getVisibleWrappers();
+                        const target = wrappers[targetPage - 1];
+                        if (!target) {
+                            this.isSeeking = false;
+                            return;
+                        }
+
+                        const behavior = instant ? 'auto' : 'smooth';
+                        if (this.readingMode === 'vertical') {
+                            target.scrollIntoView({ behavior, block: 'start' });
+                        } else if (this.readingMode === 'horizontal') {
+                            target.scrollIntoView({ behavior, inline: 'start', block: 'nearest' });
+                        }
+
+                        this.seekTimeout = setTimeout(() => {
+                            this.isSeeking = false;
+                        }, instant ? 50 : 800);
+                    });
+                },
+
+                nextPage() {
+                    if (this.currentPage >= this.totalPages) {
+                        this.goToNextChapter();
+                        return;
+                    }
+                    this.scrollToPage(this.currentPage + 1);
+                },
+
+                prevPage() {
+                    if (this.currentPage <= 1) {
+                        this.goToPrevChapter();
+                        return;
+                    }
+                    this.scrollToPage(this.currentPage - 1);
+                },
+
+                goToPrevChapter() {
+                    this.goToChapter(this.prevChapterUrl);
+                },
+
+                goToNextChapter() {
+                    this.goToChapter(this.nextChapterUrl);
+                },
+
+                goToChapter(url) {
+                    if (!url) {
+                        return;
+                    }
+                    this.persistSettings();
+                    window.location.href = url;
+                },
+
+                handleHorizontalScroll(event) {
+                    if (this.readingMode !== 'horizontal' || this.isSeeking) {
+                        return;
+                    }
+
+                    const container = event.target;
+                    const wrappers = this.getReaderWrappers();
+                    if (!wrappers.length) {
+                        return;
+                    }
+
+                    const containerRect = container.getBoundingClientRect();
+                    const centerX = containerRect.left + containerRect.width / 2;
+                    const foundIndex = this.findHorizontalReaderIndex(
+                        wrappers,
+                        centerX,
+                        this.flipDirection === 'japan'
+                    );
+                    this.currentPage = Math.min(foundIndex + 1, this.totalPages);
+                },
+
+                getContainerStyle() {
+                    const styles = [];
+                    if (this.readingMode === 'vertical') {
+                        let width = this.maxWidth;
+                        if (this.pageMode === 'double') {
+                            width = (parseInt(this.maxWidth, 10) * 2) + 'px';
+                        }
+                        styles.push(`max-width: ${width} !important`);
+                        if (this.pageMode === 'double' && this.flipDirection === 'japan') {
+                            styles.push('direction: rtl');
+                        }
+                    } else if (this.readingMode === 'paged' || this.readingMode === 'vertical-paged') {
+                        if (this.readingMode === 'paged' && this.pageMode === 'double' && this.flipDirection === 'japan') {
+                            styles.push('flex-direction: row-reverse');
+                        }
+                    } else if (this.readingMode === 'horizontal') {
+                        if (this.flipDirection === 'japan') {
+                            styles.push('direction: rtl');
+                        }
+                    }
+                    return styles.join('; ');
+                },
+
+                getEndPanelStyle() {
+                    const styles = [];
+                    if (this.readingMode === 'vertical') {
+                        styles.push('width: 100% !important');
+                        styles.push('order: 99999');
+                    } else if (this.readingMode === 'horizontal') {
+                        styles.push('height: 100%');
+                        styles.push('width: min(92vw, 1050px)');
+                        styles.push('min-width: min(92vw, 1050px)');
+                        styles.push('flex-shrink: 0');
+                        styles.push(`margin-inline-end: ${this.gapX} !important`);
+                    } else if (this.readingMode === 'paged' || this.readingMode === 'vertical-paged') {
+                        styles.push('height: 100%');
+                        styles.push('width: 100vw');
+                        styles.push('flex-shrink: 0');
+                    }
+                    return styles.join('; ');
+                },
+
+                getWrapperStyle(index) {
+                    const styles = [];
+
+                    if (this.readingMode === 'vertical') {
+                        if (this.pageMode === 'single') {
+                            styles.push('width: 100% !important');
+                        } else {
+                            const isSpread = this.firstPageSpread && index === 0;
+                            if (isSpread) {
+                                styles.push('width: 100% !important');
+                                styles.push('padding-inline: 25% !important');
+                            } else {
+                                const effectiveIndex = this.firstPageSpread ? index - 1 : index;
+                                const isLeft = effectiveIndex % 2 === 0;
+                                styles.push(`width: calc(50% - ${this.gapX} / 2) !important`);
+                                styles.push(isLeft ? `margin-inline-end: ${this.gapX} !important` : 'margin-inline-end: 0 !important');
+                            }
+                        }
+                        styles.push(`margin-bottom: ${this.gapY} !important`);
+                    } else if (this.readingMode === 'horizontal') {
+                        styles.push('height: 100%');
+                        styles.push('width: auto');
+                        styles.push('flex-shrink: 0');
+                        styles.push(`max-width: ${this.maxWidth} !important`);
+                        styles.push(`margin-inline-end: ${this.gapX} !important`);
+                    } else if (this.readingMode === 'paged' || this.readingMode === 'vertical-paged') {
+                        styles.push('height: 100%');
+                        styles.push('width: auto');
+                        styles.push('max-height: 100vh');
+                        styles.push('object-fit: contain');
+                        styles.push('flex-shrink: 0');
+
+                        if (this.readingMode === 'paged' && this.pageMode === 'double') {
+                            if (this.firstPageSpread && index === 0) {
+                                styles.push('width: 100vw');
+                                styles.push('max-width: 100vw');
+                            } else {
+                                const baseWidth = this.maxWidth === '100%' ? '50vw' : `min(50vw, calc(${this.maxWidth} / 2))`;
+                                styles.push(`max-width: calc(${baseWidth} - ${this.gapX}) !important`);
+                                const effectiveIndex = this.firstPageSpread ? index - 1 : index;
+                                if (effectiveIndex % 2 === 0) {
+                                    styles.push(`margin-inline-end: ${this.gapX} !important`);
+                                }
+                            }
+                        } else {
+                            const baseWidth = this.maxWidth === '100%' ? '100vw' : `min(100vw, ${this.maxWidth})`;
+                            styles.push(`max-width: ${baseWidth} !important`);
+                        }
+                    }
+
+                    return styles.join('; ');
+                },
+
+                getImageStyle() {
+                    const styles = [`border: ${this.borderWidth} solid #000 !important`];
+                    if (this.readingMode === 'horizontal' || this.readingMode === 'paged' || this.readingMode === 'vertical-paged') {
+                        const height = this.readingMode === 'horizontal' ? 'calc(100vh - 20px)' : '100vh';
+                        styles.push(`max-height: ${height}`);
+                        styles.push('width: auto');
+                        styles.push('max-width: 100%');
+                    }
+                    return styles.join('; ');
+                }
+            };
+        }
+    </script>
+</body>
+</html>

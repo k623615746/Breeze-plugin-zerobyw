@@ -1,0 +1,26 @@
+{
+  "name": "breeze-plugin-zerobyw",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Breeze 插件：zero搬运网（zerobyw33）漫画源",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "pnpm typecheck && node --import tsx build/generate-version.ts && node --import tsx build/generate-manifest.ts && cross-env NODE_OPTIONS=\"--import tsx\" rspack build && node --import tsx build/generate-brotli.ts",
+    "build:fast": "cross-env NODE_OPTIONS=\"--import tsx\" rspack build"
+  },
+  "devDependencies": {
+    "@rspack/cli": "^2.1.8",
+    "@rspack/core": "^2.1.8",
+    "@types/node": "^22.10.0",
+    "cheerio": "^1.2.0",
+    "cross-env": "^10.1.0",
+    "tsx": "^4.23.8",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "breeze-plugin-kit": "^0.14.0"
+  }
+}
