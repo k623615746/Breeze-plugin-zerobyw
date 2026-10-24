@@ -60,9 +60,27 @@ export async function fetchLoginForm(): Promise<LoginForm> {
     "";
 
   if (!formhash || !loginhash) {
+    // 已登录用户访问登录页会被 Discuz 302 到首页，拿不到 formhash。
+    // 先探一下是否其实已登录（网页登录同步过来的 cookie），是的话不算站点结构问题。
+    if (await quickLoginCheck()) {
+      throw new Error("ALREADY_LOGGED_IN");
+    }
     throw new Error("未能从登录页解析出 formhash / loginhash，站点结构可能已调整");
   }
   return { formhash, loginhash };
+}
+
+/**
+ * 轻量登录态探测：访问需要登录的页面，若没有落到登录页即视为已登录。
+ * 用于「已登录却跑登录流程」的误判修正。
+ */
+async function quickLoginCheck(): Promise<boolean> {
+  try {
+    const html = await fetchSitePath(`/pc/pcmy/?tab=fav`);
+    return !/action=login/.test(html);
+  } catch {
+    return false;
+  }
 }
 
 /** 从响应 HTML 里抽取错误提示 */
@@ -123,6 +141,23 @@ export async function loginWithAccount(input: {
 
   if (!username || !password) {
     throw new Error("账号和密码都不能为空");
+  }
+
+  // 已登录（如网页登录已同步 cookie）则不必再走一遍账号密码流程——
+  // 否则 Discuz 会把登录页 302 到首页，导致「解析不到 formhash」的误报失败。
+  if (await quickLoginCheck()) {
+    console.log("[zerobyw] 已是登录态，跳过账号密码登录");
+    const saved = await saveCookieFromSession();
+    // 仍然留存账号密码，供 App 重启后自动续登
+    try {
+      await Promise.all([
+        authConfig.save(AUTH_USERNAME_KEY, username),
+        authConfig.save(AUTH_PASSWORD_KEY, password),
+      ]);
+    } catch {
+      // 保存失败不影响
+    }
+    return { ok: true, message: "已是登录状态", cookieCount: saved };
   }
 
   const { formhash, loginhash } = await fetchLoginForm();

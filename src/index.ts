@@ -700,7 +700,14 @@ async function loginWithAccount(payload?: Record<string, unknown>) {
     answer: values.answer ?? "",
   });
 
-  // 登录成功后顺带确认一次站点登录态
+  // 登录成功后顺带确认一次站点登录态（「已是登录状态」时跳过确认，避免误报）
+  if (result.message === "已是登录状态") {
+    return {
+      source: PLUGIN_ID,
+      message: result.message,
+      data: { message: result.message, cookieCount: result.cookieCount },
+    };
+  }
   const state = await detectLoginState();
   const message = state.loggedIn ? result.message : `${result.message}（但站点未确认登录态：${state.hint}）`;
 
