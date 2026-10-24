@@ -125,6 +125,20 @@ async function probeOrigin(candidate: string): Promise<string | null> {
       if (!res.ok) {
         continue;
       }
+      // 关键：候选域名若把请求 302 到了别的 host（旧域名跳转到新域名），
+      // 视为失效域名——它自己已经不提供服务，跟随重定向拿到的正常页面不算数。
+      // 否则域名自愈会反复「验证通过」这个跳转域名，登录 POST 因跨域 session 失效而报 503。
+      const finalHost = (() => {
+        try {
+          return new URL(res.url || base).hostname;
+        } catch {
+          return host;
+        }
+      })();
+      if (finalHost && finalHost !== host) {
+        console.log("[zerobyw] 候选域名是跳转域名，弃用:", base, "→", finalHost);
+        continue;
+      }
       const body = await res.text();
       if (looksLikeSitePage(body) && !looksLikeParkedPage(body)) {
         return base;
@@ -156,6 +170,11 @@ async function persistOrigin(origin: string): Promise<void> {
   } catch {
     // 持久化失败不影响本次会话
   }
+}
+
+/** 把当前内存里的 origin 持久化（登录 http 降级成功后调用） */
+export async function persistCurrentOrigin(): Promise<void> {
+  await persistOrigin(getOrigin());
 }
 
 let inflight: Promise<string> | null = null;

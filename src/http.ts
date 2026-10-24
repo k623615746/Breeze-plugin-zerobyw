@@ -201,6 +201,7 @@ export async function postSiteForm(
     method: "POST",
     headers: buildHeaders(url, {
       "Content-Type": "application/x-www-form-urlencoded",
+      Origin: getOrigin(),
       Referer: `${getOrigin()}/member.php?mod=logging&action=login`,
     }),
     body,

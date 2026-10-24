@@ -7,7 +7,9 @@
  * 每个站点实例可能不同，所以整包按名字存取，不假设固定前缀）。
  */
 import { cleanText } from "./common";
+import { getOrigin, setOrigin } from "./origin";
 import { fetchSitePath, getSessionCookie, postSiteForm, saveCookie } from "./http";
+import { persistCurrentOrigin } from "./site";
 
 const LOGIN_PAGE = "/member.php?mod=logging&action=login";
 
@@ -112,8 +114,8 @@ export async function loginWithAccount(input: {
     `/member.php?mod=logging&action=login&loginsubmit=yes` +
     `&formhash=${encodeURIComponent(formhash)}&loginhash=${encodeURIComponent(loginhash)}`;
 
-  // 503 通常是站点 WAF 对「自动化登录请求」的临时拦截，等待后重试一次
-  let res = await postSiteForm(action, {
+  // 503 处理链：等 1.5s 重试一次 → 仍 503 则降级 http 重试（避开针对 TLS 指纹的 WAF 拦截）
+  const postBody = {
     referer: "/",
     loginfield: "username",
     username,
@@ -122,21 +124,24 @@ export async function loginWithAccount(input: {
     answer,
     cookietime: "2592000",
     formhash,
-  });
+  };
+
+  let res = await postSiteForm(action, postBody);
 
   if (res.status === 503) {
     console.log("[zerobyw] 登录收到 503，1.5 秒后重试一次");
     await sleep(1500);
-    res = await postSiteForm(action, {
-      referer: "/",
-      loginfield: "username",
-      username,
-      password,
-      questionid,
-      answer,
-      cookietime: "2592000",
-      formhash,
-    });
+    res = await postSiteForm(action, postBody);
+  }
+
+  if (res.status === 503) {
+    const httpOrigin = getOrigin().replace(/^https:/i, "http:");
+    if (httpOrigin !== getOrigin()) {
+      console.log("[zerobyw] https 登录仍被拦（503），降级 http 重试:", httpOrigin);
+      setOrigin(httpOrigin);
+      await persistCurrentOrigin();
+      res = await postSiteForm(action, postBody);
+    }
   }
 
   if (res.status >= 400) {
