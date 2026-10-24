@@ -218,7 +218,7 @@ export async function loginWithAccount(input: {
     const hint = /验证码|seccode/i.test(res.text)
       ? `站点要求输入验证码${webLoginGuide}`
       : retry
-        ? `登录失败（${detail || "账号或密码不正确"}）；该账号/IP 已被限流，剩余尝试 ${retry} 次${webLoginGuide}`
+        ? `登录失败（${detail || "账号或密码不正确"}）。当前网络环境可能被站点风控（失败计数按 IP 累计，剩余 ${retry} 次，用尽将锁定 15 分钟），建议改用网页登录，或换手机热点等网络重试${webLoginGuide}`
         : "";
     throw new Error(`${detail || hint || "登录失败，请检查账号密码是否正确"}${webLoginGuide}`);
   }

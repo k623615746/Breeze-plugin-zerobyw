@@ -3,7 +3,7 @@
   "uuid": "b7d1e0c4-3a52-4f8b-9c61-0e2a5f7d8b90",
   "iconUrl": "https://cdn.jsdelivr.net/gh/k623615746/Breeze-plugin-zerobyw@main/assets/icon.png",
   "describe": "zero搬运网（zerobyw33）漫画源。\n\n- 支持关键词搜索、分类筛选、人气/最新排行\n- 章节列表取自阅读页目录，完整话数可见\n- 域名失效时自动从官方发布页获取最新域名\n- 部分章节需要站点账号登录；在插件设置里用账号密码直接登录\n\n> 内容版权归原作者及出版方所有，本插件仅做页面解析，不存储、不分发任何漫画内容。",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "home": "https://github.com/k623615746/Breeze-plugin-zerobyw",
   "updateUrl": "https://api.github.com/repos/k623615746/Breeze-plugin-zerobyw/releases/latest",
   "function": [

@@ -638,7 +638,7 @@ async function saveWebLoginCookie(payload?: Record<string, unknown>) {
 
 /**
  * 用户信息（学习 JmComic 的 UserInfoBundle）：登录后设置页展示账号。
- * Discuz 的用户名在登录态页面里（pcmy 标题/欢迎语），提取不到时给出降级信息。
+ * discuz_uid 为 0/空 = 未登录（此时页面里的「登录」按钮文字不可当用户名）。
  */
 async function getUserInfoBundle(): Promise<UserInfoBundleContract> {
   await ensureCookie();
@@ -646,10 +646,14 @@ async function getUserInfoBundle(): Promise<UserInfoBundleContract> {
   let uid = "";
   try {
     const html = await fetchSitePath(`/pc/pcmy/?tab=fav`);
-    uid = html.match(/discuz_uid\s*=\s*'(\d+)'/)?.[1] ?? "";
-    username =
-      cleanText(html.match(/欢迎您回来[，,\s]*<[^>]*>([^<]+)</)?.[1] ?? "") ||
-      cleanText(html.match(/<strong[^>]*>([^<]{1,30})<\/strong>/)?.[1] ?? "");
+    const uidMatch = html.match(/discuz_uid\s*=\s*'?(\d+)'?/);
+    uid = uidMatch?.[1] ?? "";
+    if (uid && uid !== "0") {
+      // 已登录：欢迎语（Discuz 标准格式「欢迎您回来，xxx」）或空间链接里的用户名
+      username =
+        cleanText(html.match(/欢迎您回来[，,\s]*<[^>]*>([^<]+)</)?.[1] ?? "") ||
+        cleanText(html.match(/\/home\.php\?mod=space(?:&amp;|&)username=([^"&<]+)/)?.[1] ?? "");
+    }
   } catch {
     // 页面抓取失败时退回保存的账号
   }
@@ -665,7 +669,7 @@ async function getUserInfoBundle(): Promise<UserInfoBundleContract> {
     data: {
       title: "账号",
       avatar: { id: uid || "me", url: "", name: username, path: "", extern: {} },
-      lines: [uid ? `${username}（UID ${uid}）` : username],
+      lines: [uid && uid !== "0" ? `${username}（UID ${uid}）` : username],
       extern: { uid },
     },
   };
